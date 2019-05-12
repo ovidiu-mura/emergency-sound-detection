@@ -52,6 +52,13 @@ class CSound:
 
 
 def main():
+    config = configparser.ConfigParser()
+    config.read('config/config.ini')
+    pn = config.get('DEFAULT','PROJECT_NAME')
+
+    print(pn)
+    exit(3)
+
     c = CSound()
     b = BNoise()
     b.brownian()

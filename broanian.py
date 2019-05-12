@@ -7,7 +7,7 @@ brownian() implements one dimensional Brownian motion (i.e. the Wiener process).
 from math import sqrt
 from scipy.stats import norm
 import numpy as np
-
+import configparser
 
 def brownian(x0, n, dt, delta, out=None):
     """
