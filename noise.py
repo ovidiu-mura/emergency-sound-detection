@@ -13,7 +13,7 @@ import wave
 import matplotlib.pyplot as plt
 from scipy.io.wavfile import write
 
-class BNoise:
+class bNoise:
     def __init__(self):
         self.samples = None
         self.delta = 1.25
@@ -21,7 +21,7 @@ class BNoise:
         self.x = 0.0
         self.a = []
         self.n = 48000
-        self.file_name = 'brown.wav'
+        self.file_name = 'bNoise.wav'
 
     def brownian_motion(self):
         for k in range(self.n*6):
@@ -37,7 +37,7 @@ class BNoise:
         # values between -2^20 and 2^20.
         return int32(np.array(self.samples)*(2**20))
 
-    def plot(self, file_name='brown.wav'):
+    def plot(self, file_name='bNoise.wav'):
         spf = wave.open(file_name,'r')
 
         # Extract Raw Audio from Wav File

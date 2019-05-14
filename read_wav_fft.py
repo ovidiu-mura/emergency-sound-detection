@@ -11,8 +11,8 @@ class READ_WAV_FFT:
         self.fftabs = None
         self.freqs = None
 
-    def read_wav_fft(self, file_name='fast.wav'):
-        self.samplerate, self.data = wavfile.read("fast.wav")
+    def read_wav_fft(self, file_name='eSound.wav'):
+        self.samplerate, self.data = wavfile.read("eSound.wav")
         samples = self.data.shape[0]
         datafft = fft(self.data)
 

@@ -12,12 +12,12 @@ import wave
 
 # from scikits import wavread
 
-from noise import BNoise
+from noise import bNoise
 
-class CSound:
+class eSound:
     def __init__(self):
         self.N = 48000
-        self.file_name = 'fast.wav'
+        self.file_name = 'eSound.wav'
 
     def f(self, t, f_c, f_m, beta):
         # t    = time
@@ -31,7 +31,7 @@ class CSound:
         # values between -2^15 and 2^15 - 1.
         return int16(signal*(2**15-1))
 
-    def plot_wave(self, file_name='fast.wav'):
+    def plot_wave(self, file_name='eSound.wav'):
         spf = wave.open(file_name,'r')
 
         #Extract Raw Audio from Wav File
@@ -53,8 +53,8 @@ def main():
     config.read('config/config.ini')
     config.get('DEFAULT','PROJECT_NAME')
 
-    c = CSound()
-    b = BNoise()
+    c = eSound()
+    b = bNoise()
     b.brownian_motion()
 
     b.plot('brown.wav')
