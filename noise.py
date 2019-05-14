@@ -44,6 +44,6 @@ class bNoise:
         signal = spf.readframes(-1)
         signal = np.frombuffer(signal, 'int32')
         plt.figure(1)
-        plt.title('Signal Wave...')
+        plt.title('Brownian Motion Wave...')
         plt.plot(signal[0:1600])
         plt.show()

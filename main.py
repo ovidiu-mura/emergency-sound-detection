@@ -9,6 +9,8 @@ import configparser
 import numpy as np
 import matplotlib.pyplot as plt
 import wave
+from read_wav_fft import READ_WAV_FFT
+from mix_sounds import *
 
 # from scikits import wavread
 
@@ -38,7 +40,7 @@ class eSound:
         signal = spf.readframes(-1)
         signal = np.frombuffer(signal, 'int32')
         plt.figure(1)
-        plt.title('Signal Wave...')
+        plt.title('Emergency Sound Wave...')
         plt.plot(signal[0:1600])
         plt.show()
 
@@ -57,11 +59,15 @@ def main():
     b = bNoise()
     b.brownian_motion()
 
-    b.plot('brown.wav')
+    b.plot('bNoise.wav')
     c.create_emergency_sound()
     c.plot_wave()
 
+    mix_sounds('eSound.wav', 'bNoise.wav')
 
+    rwf = READ_WAV_FFT()
+    rwf.read_wav_fft('eSound.wav')
+    rwf.plot()
 
 if __name__ == "__main__":
     main()

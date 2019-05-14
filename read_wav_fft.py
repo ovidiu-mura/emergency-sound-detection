@@ -12,7 +12,7 @@ class READ_WAV_FFT:
         self.freqs = None
 
     def read_wav_fft(self, file_name='eSound.wav'):
-        self.samplerate, self.data = wavfile.read("eSound.wav")
+        self.samplerate, self.data = wavfile.read(file_name)
         samples = self.data.shape[0]
         datafft = fft(self.data)
 
@@ -22,6 +22,7 @@ class READ_WAV_FFT:
 
     def plot(self):
         plt.xlim( [10, self.samplerate/2] )
+        plt.title('FFT')
         plt.xscale( 'log' )
         plt.grid( True )
         plt.xlabel( 'Frequency (Hz)' )
@@ -29,7 +30,7 @@ class READ_WAV_FFT:
         plt.show()
 
 
-r = READ_WAV_FFT()
-r.read_wav_fft()
-r.plot()
+# r = READ_WAV_FFT()
+# r.read_wav_fft()
+# r.plot()
 

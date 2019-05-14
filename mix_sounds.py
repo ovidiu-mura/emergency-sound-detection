@@ -43,7 +43,7 @@ def to_int16(signal):
     return int16(signal*1)
 
 
-plt.figure(1)
-plt.title('Signal Wave...')
-plt.plot(mix_sounds("brown.wav", "fast.wav")[0:1000])
-plt.show()
+# plt.figure(1)
+# plt.title('Signal Wave...')
+# plt.plot(mix_sounds("brown.wav", "fast.wav")[0:1000])
+# plt.show()
