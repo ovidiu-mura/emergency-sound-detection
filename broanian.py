@@ -24,7 +24,6 @@ def brownian(x0, n, dt, delta, out=None):
     out : numpy array or None
     Returns: A numpy array of floats
     """
-
     x0 = np.asarray(x0)
     r = norm.rvs(size=x0.shape + (n,), scale=delta*sqrt(dt))
     if out is None:

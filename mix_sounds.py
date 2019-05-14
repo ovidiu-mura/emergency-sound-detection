@@ -5,16 +5,6 @@ import matplotlib.pyplot as plt
 
 from scipy.io.wavfile import write
 
-w1 = wave.open("brown.wav")
-w2 = wave.open("fast.wav")
-
-#get samples formatted as a string.
-samples1 = w1.readframes(w1.getnframes())
-samples2 = w2.readframes(w2.getnframes())
-
-#takes every 2 bytes and groups them together as 1 sample. ("123456" -> ["12", "34", "56"])
-samples1 = [samples1[i:i+2] for i in range(0, len(samples1), 2)]
-samples2 = [samples2[i:i+2] for i in range(0, len(samples2), 2)]
 
 # convert samples from strings to ints
 def bin_to_int(bin):
@@ -25,11 +15,27 @@ def bin_to_int(bin):
         as_int += char
     return as_int
 
-samples1 = [bin_to_int(s) for s in samples1] #['\x04\x08'] -> [0x0804]
-samples2 = [bin_to_int(s) for s in samples2]
 
-#average the samples:
-samples_avg = [(s1+s2)/2 for (s1, s2) in zip(samples1, samples2)]
+def mix_sounds(file1, file2):
+    w1 = wave.open(file1)
+    w2 = wave.open(file2)
+
+    # get samples formatted as a string.
+    samples1 = w1.readframes(w1.getnframes())
+    samples2 = w2.readframes(w2.getnframes())
+
+    # takes every 2 bytes and groups them together as 1 sample. ("123456" -> ["12", "34", "56"])
+    samples1 = [samples1[i:i+2] for i in range(0, len(samples1), 2)]
+    samples2 = [samples2[i:i+2] for i in range(0, len(samples2), 2)]
+
+    samples1 = [bin_to_int(s) for s in samples1] #['\x04\x08'] -> [0x0804]
+    samples2 = [bin_to_int(s) for s in samples2]
+
+    # average the samples:
+    samples_avg = [(s1+s2)/2 for (s1, s2) in zip(samples1, samples2)]
+    write("mix_brown_fast.wav", 48000, to_int16(samples_avg))
+    return samples_avg
+
 
 def to_int16(signal):
     # Take samples in [-1, 1] and scale to 16-bit integers,
@@ -37,11 +43,7 @@ def to_int16(signal):
     return int16(signal*1)
 
 
-print(samples_avg)
-write("mix_brown_fast_1.wav", 48000, to_int16(samples_avg))
-
-
 plt.figure(1)
 plt.title('Signal Wave...')
-plt.plot(samples_avg[0:1000])
+plt.plot(mix_sounds("brown.wav", "fast.wav")[0:1000])
 plt.show()

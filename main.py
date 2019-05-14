@@ -16,7 +16,8 @@ from noise import BNoise
 
 class CSound:
     def __init__(self):
-        None
+        self.N = 48000
+        self.file_name = 'fast.wav'
 
     def f(self, t, f_c, f_m, beta):
         # t    = time
@@ -30,7 +31,7 @@ class CSound:
         # values between -2^15 and 2^15 - 1.
         return int16(signal*(2**15-1))
 
-    def plot_wave(self, file_name='slow.wav'):
+    def plot_wave(self, file_name='fast.wav'):
         spf = wave.open(file_name,'r')
 
         #Extract Raw Audio from Wav File
@@ -42,32 +43,25 @@ class CSound:
         plt.show()
 
     def create_emergency_sound(self):
-        N = 48000 # samples per second
-        x = arange(0,3*N,0.5,float) # three seconds of audio
-        data = self.f(x/N, 1000, 2, 100)
-        write("slow.wav", N, self.to_int16(data))
-        data = self.f(x/N, 1000, 8, 100)
-        write("fast.wav", N, self.to_int16(data))
-        self.plot_wave()
+        x = arange(0,3*self.N,0.5,float) # three seconds of audio
+        data = self.f(x/self.N, 1000, 8, 100)
+        write(self.file_name, self.N, self.to_int16(data))
 
 
 def main():
     config = configparser.ConfigParser()
     config.read('config/config.ini')
-    pn = config.get('DEFAULT','PROJECT_NAME')
-
-    print(pn)
-    exit(3)
+    config.get('DEFAULT','PROJECT_NAME')
 
     c = CSound()
     b = BNoise()
-    b.brownian()
-    cc = np.array(b.to_int32())
-    print(cc)
-    write('brown.wav', 48000, cc)
-    b.plot()
+    b.brownian_motion()
+
+    b.plot('brown.wav')
     c.create_emergency_sound()
-    c.plot_wave('fast.wav')
+    c.plot_wave()
+
+
 
 if __name__ == "__main__":
     main()
