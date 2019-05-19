@@ -15,16 +15,17 @@ from scipy.io.wavfile import write
 import configparser
 
 class bNoise:
+
     def __init__(self):
-        config = configparser.ConfigParser()
-        config.read('config/config.ini')
+        self.config = configparser.ConfigParser()
+        self.config.read('config/config.ini')
         self.samples = None
         self.delta = 1.25
         self.dt = 1.5
         self.x = 0.0
         self.a = []
         self.n = 48000
-        self.file_name = config.get('NOISE','BROWN_FILE')
+        self.file_name = self.config.get('NOISE','BROWN_FILE')
 
     def brownian_motion(self):
         for k in range(self.n*6):
@@ -52,15 +53,20 @@ class bNoise:
         plt.show()
 
 class wNoise:
+
     def __init__(self):
-        self.amplitude = 1
+        self.amplitude = 100000
         self.framerate = 48000
-        self.duration = 1
+        self.duration = 6
         self.time = np.arange(self.duration*self.framerate)/self.framerate
         self.noise = None
+        self.config = configparser.ConfigParser()
+        self.config.read('config/config.ini')
+        self.file_name = self.config.get('NOISE','WHITE_FILE')
 
     def create_white_noise(self):
         self.noise = np.random.uniform(-self.amplitude, self.amplitude, self.time.shape[0])
+        write(self.file_name[1:-1], 48000, int32(self.noise*2**10))
 
     def plot(self):
         plt.figure(1)
@@ -75,31 +81,34 @@ class pNoise:
         self.signal = None
         self.amplitude = 100
         self.fs = None
-        self.duration = None
+        self.duration = 3
         self.framerate = 48000
-        self.time = np.arange(3*self.framerate) / self.framerate
+        self.time = np.arange(self.duration*2*self.framerate) / self.framerate
+        self.config = configparser.ConfigParser()
+        self.config.read('config/config.ini')
+        self.file_name = self.config.get('NOISE','PINK_FILE')
 
     def make_wave(self):
-        np.random.seed(17)
-        self.signal = np.random.uniform(-self.amplitude, self.amplitude, self.time.shape)
+        np.random.seed(20)
+        self.signal = np.random.uniform(-self.amplitude, self.amplitude, self.time.shape[0])
 
         # parameters to generate the freqs
-        n = len(self.signal)
+        n = self.signal.shape[0]
         d = 1/self.framerate
 
         # spectrum of the sound wave or real values array
-        hs = np.fft.fft(self.signal.real)
-        fs = np.fft.fftfreq(n, d)
+        hs = np.fft.rfft(self.signal.real)
+        fs = np.fft.rfftfreq(n, d)
 
         # pink filter: S(f) = 1/f^a, where 0 < a < 2
-        denom = fs**(1/1.5)
+        denom = fs.real**(1/2)
         denom[0] = 1
-        hs = hs/denom
+        hs = hs.real/denom
 
         hs = np.absolute(hs)#**2
         #fs = np.fft.rfft(fs)
 
-        write('pNoise.wav', 48000, self.to_int32(hs))
+        write(self.file_name[1:-1], 48000, self.to_int32(hs))
 
         plt.figure(1)
         plt.title('Pink Noise Wave...')
