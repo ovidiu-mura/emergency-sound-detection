@@ -68,6 +68,7 @@ class wNoise:
         plt.plot(self.noise[0:250])
         plt.show()
 
+# https://en.wikipedia.org/wiki/Pink_noise
 
 class pNoise:
     def __init__(self):
