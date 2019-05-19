@@ -51,23 +51,27 @@ class eSound:
 
 
 def main():
-    config = configparser.ConfigParser()
-    config.read('config/config.ini')
-    config.get('DEFAULT','PROJECT_NAME')
+    # config = configparser.ConfigParser()
+    # config.read('config/config.ini')
+    # config.get('DEFAULT','PROJECT_NAME')
 
     c = eSound()
-    b = bNoise()
-    b.brownian_motion()
-
-    b.plot('bNoise.wav')
     c.create_emergency_sound()
     c.plot_wave()
+
+    b = bNoise()
+    b.brownian_motion()
+    b.plot()
 
     mix_sounds('eSound.wav', 'bNoise.wav')
 
     rwf = READ_WAV_FFT()
     rwf.read_wav_fft('eSound.wav')
     rwf.plot()
+
+    rwf.read_wav_fft('mix_brown_fast.wav')
+    rwf.plot()
+
 
 if __name__ == "__main__":
     main()

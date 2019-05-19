@@ -20,6 +20,7 @@ class READ_WAV_FFT:
         self.fftabs = abs(datafft)
         self.freqs = fftfreq(samples,1/self.samplerate)
 
+
     def plot(self):
         plt.xlim( [10, self.samplerate/2] )
         plt.title('FFT')
@@ -29,8 +30,6 @@ class READ_WAV_FFT:
         plt.plot(self.freqs[:int(self.freqs.size/2)],self.fftabs[:int(self.freqs.size/2)])
         plt.show()
 
-
-# r = READ_WAV_FFT()
-# r.read_wav_fft()
-# r.plot()
-
+r = READ_WAV_FFT()
+r.read_wav_fft()
+r.plot()

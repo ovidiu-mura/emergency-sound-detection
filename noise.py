@@ -12,16 +12,19 @@ import numpy as np
 import wave
 import matplotlib.pyplot as plt
 from scipy.io.wavfile import write
+import configparser
 
 class bNoise:
     def __init__(self):
+        config = configparser.ConfigParser()
+        config.read('config/config.ini')
         self.samples = None
         self.delta = 1.25
         self.dt = 1.5
         self.x = 0.0
         self.a = []
         self.n = 48000
-        self.file_name = 'bNoise.wav'
+        self.file_name = config.get('NOISE','BROWN_FILE')
 
     def brownian_motion(self):
         for k in range(self.n*6):
@@ -47,3 +50,70 @@ class bNoise:
         plt.title('Brownian Motion Wave...')
         plt.plot(signal[0:1600])
         plt.show()
+
+class wNoise:
+    def __init__(self):
+        self.amplitude = 1
+        self.framerate = 48000
+        self.duration = 1
+        self.time = np.arange(self.duration*self.framerate)/self.framerate
+        self.noise = None
+
+    def create_white_noise(self):
+        self.noise = np.random.uniform(-self.amplitude, self.amplitude, self.time.shape[0])
+
+    def plot(self):
+        plt.figure(1)
+        plt.title('White Noise Wave...')
+        plt.plot(self.noise[0:250])
+        plt.show()
+
+
+class pNoise:
+    def __init__(self):
+        self.signal = None
+        self.amplitude = 100
+        self.fs = None
+        self.duration = None
+        self.framerate = 48000
+        self.time = np.arange(3*self.framerate) / self.framerate
+
+    def make_wave(self):
+        np.random.seed(17)
+        self.signal = np.random.uniform(-self.amplitude, self.amplitude, self.time.shape)
+
+        # parameters to generate the freqs
+        n = len(self.signal)
+        d = 1/self.framerate
+
+        # spectrum of the sound wave or real values array
+        hs = np.fft.fft(self.signal.real)
+        fs = np.fft.fftfreq(n, d)
+
+        # pink filter: S(f) = 1/f^a, where 0 < a < 2
+        denom = fs**(1/1.5)
+        denom[0] = 1
+        hs = hs/denom
+
+        hs = np.absolute(hs)#**2
+        #fs = np.fft.rfft(fs)
+
+        write('pNoise.wav', 48000, self.to_int32(hs))
+
+        plt.figure(1)
+        plt.title('Pink Noise Wave...')
+
+        plt.plot(fs.real[10750:], hs.real[10750:], linewidth=2, color='r')
+        plt.show()
+
+    def to_int32(self, signal):
+        # Take samples in [-1, 1] and scale to 32-bit integers,
+        # values between -2^20 and 2^20.
+        return int32(np.asarray(signal.real)*(2**20))
+
+w = wNoise()
+w.create_white_noise()
+w.plot()
+
+n = pNoise()
+n.make_wave()
