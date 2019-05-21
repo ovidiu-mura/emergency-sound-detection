@@ -8,15 +8,17 @@ from scipy.io.wavfile import write
 
 # convert samples from strings to ints
 def bin_to_int(bin):
-    as_int = 0
-    for char in bin[::-1]: #iterate over each char in reverse (because little-endian)
-        #get the integer value of char and assign to the lowest byte of as_int, shifting the rest up
-        as_int <<= 8
-        as_int += char
-    return as_int
+    i = 0
+    for c in bin[::-1]: # iterate over each char in reverse (because little-endian)
+        # get the integer value of char and assign to the lowest byte of as_int, shifting the rest up
+        i <<= 8
+        i += c
+    return i
 
+samples = None
 
 def mix_sounds(file1, file2):
+    global samples
     w1 = wave.open(file1)
     w2 = wave.open(file2)
 
@@ -30,6 +32,7 @@ def mix_sounds(file1, file2):
 
     samples1 = [bin_to_int(s) for s in samples1] #['\x04\x08'] -> [0x0804]
     samples2 = [bin_to_int(s) for s in samples2]
+    samples = np.array(samples2)/10000
 
     # average the samples:
     samples_avg = [(s1+s2)/2 for (s1, s2) in zip(samples1, samples2)]
@@ -43,7 +46,77 @@ def to_int16(signal):
     return int16(signal*1)
 
 
+ys = mix_sounds("bNoise.wav", "eSound.wav") #[0:238]
+print(len(ys))
+ys = np.absolute(ys)
+a = []
+for i in range(1,238):
+    if(i<237):
+        b=0
+        if(len(a)!=0):
+            b = a[-1]
+        if(ys[i]<b+1000):
+            a.insert(i, ys[i])
+a[0] = 0
+
+aa = np.fft.rfft(ys)
+bb = np.fft.fft(samples)/10000
+
+ba = min(a[50:])
+c = np.array(a)
+c = np.array([(0 if x<0 else x) for x in c])/10000
+
+
 plt.figure(1)
 plt.title('Signal Wave...')
-plt.plot(mix_sounds("bNoise.wav", "eSound.wav")[0:1000])
+
+c1 = ys/10000
+
+from scipy.signal import fftconvolve
+
+def similarity(template, test):
+    corr = fftconvolve(template, test, mode='same')
+    return corr
+
+cor = similarity(c1[0:1696],samples[0:1696])
+
+x1 = c1[0:1696]
+x2 = samples[0:1696]
+
+cor = np.array(cor)/10000
+from correlate import *
+
+norm_corr = Correlate() #sum(x1*x2)/math.sqrt(sum(x1**2)*sum(x2**2))
+print(norm_corr.normalized_correlation(x1, x2))
+
+#print(norm_corr)
+print('========================')
+print(x1[0:5])
+print(x2[0:5])
+print(x1[0]+x2[0])
+print(sum(x1[0:5],x2[0:5]))
+
+s = [1,2,3,4,5]
+s2 = [1,2,3,4,5]
+print(sum(s+s2))
+
+print(norm_corr.standard_correlate(x1,x2))
+
+print('-----------------------')
+print(max(abs(cor)))
+print(max(abs((c1)[0:1696])))
+print(max(abs((samples)[0:1696])))
+
+
+
+
+plt.plot(x1, color='blue')
+plt.plot(x2, color='red')
+
+
+
+plt.plot((cor), color='green')
+
+
 plt.show()
+

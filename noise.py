@@ -33,7 +33,7 @@ class bNoise:
             self.a.insert(k, self.x)
         self.samples = self.a
         cc = np.array(self.to_int32())
-        write(self.file_name, 48000, cc)
+        write(self.file_name[1:-1], 48000, cc)
         return self.a
 
     def to_int32(self):
@@ -121,9 +121,9 @@ class pNoise:
         # values between -2^20 and 2^20.
         return int32(np.asarray(signal.real)*(2**20))
 
-w = wNoise()
-w.create_white_noise()
-w.plot()
-
-n = pNoise()
-n.make_wave()
+# w = wNoise()
+# w.create_white_noise()
+# w.plot()
+#
+# n = pNoise()
+# n.make_wave()

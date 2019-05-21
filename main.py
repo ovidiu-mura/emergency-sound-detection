@@ -51,10 +51,11 @@ class eSound:
 
 
 def main():
-    # config = configparser.ConfigParser()
-    # config.read('config/config.ini')
-    # config.get('DEFAULT','PROJECT_NAME')
+    config = configparser.ConfigParser()
+    config.read('config/config.ini')
+    project_name = config.get('DEFAULT','PROJECT_NAME')
 
+    print("Welcome to " + str(project_name) + "!")
     c = eSound()
     c.create_emergency_sound()
     c.plot_wave()
