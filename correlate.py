@@ -12,12 +12,14 @@ class Correlate:
         self.signal_1 = None
         self.signal_2 = None
 
-
+    # norm_corr(x, y) = sum(x[n]*y[n])/sqrt(sum(x^2)*sum(y^2))
+    # 0 <= n <= n-1
     def normalized_correlation(self, x1, x2):
         self.signal_1 = x1
         self.signal_2 = x2
         return sum(x1*x2)/math.sqrt(sum(x1**2)*sum(x2**2))
 
+    # corr(x,y) = Sum (x[n]*y[n]), 0 <= n <= n-1
     def standard_correlate(self, x1, x2):
         self.signal_1 = x1
         self.signal_2 = x2
