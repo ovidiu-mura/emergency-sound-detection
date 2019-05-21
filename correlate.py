@@ -5,6 +5,7 @@
 # Referrence Video: https://www.youtube.com/watch?v=ngEC3sXeUb4
 
 import math
+from scipy.signal import fftconvolve
 
 class Correlate:
 
@@ -24,3 +25,7 @@ class Correlate:
         self.signal_1 = x1
         self.signal_2 = x2
         return sum(x1*x2)
+
+    def similarity(self, template, test):
+        corr = fftconvolve(template, test, mode='same')
+        return corr

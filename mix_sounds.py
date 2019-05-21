@@ -15,10 +15,10 @@ def bin_to_int(bin):
         i += c
     return i
 
-samples = None
+orig_emergency = None
 
 def mix_sounds(file1, file2):
-    global samples
+    global orig_emergency
     w1 = wave.open(file1)
     w2 = wave.open(file2)
 
@@ -32,7 +32,7 @@ def mix_sounds(file1, file2):
 
     samples1 = [bin_to_int(s) for s in samples1] #['\x04\x08'] -> [0x0804]
     samples2 = [bin_to_int(s) for s in samples2]
-    samples = np.array(samples2)/10000
+    orig_emergency = np.array(samples2)/10000
 
     # average the samples:
     samples_avg = [(s1+s2)/2 for (s1, s2) in zip(samples1, samples2)]
@@ -47,76 +47,37 @@ def to_int16(signal):
 
 
 ys = mix_sounds("bNoise.wav", "eSound.wav") #[0:238]
-print(len(ys))
-ys = np.absolute(ys)
-a = []
-for i in range(1,238):
-    if(i<237):
-        b=0
-        if(len(a)!=0):
-            b = a[-1]
-        if(ys[i]<b+1000):
-            a.insert(i, ys[i])
-a[0] = 0
 
-aa = np.fft.rfft(ys)
-bb = np.fft.fft(samples)/10000
+ys = np.absolute(ys)
+
+from filters import *
+
+a = np.array(filter_amps_below(ys, 1000))/10000
 
 ba = min(a[50:])
 c = np.array(a)
 c = np.array([(0 if x<0 else x) for x in c])/10000
 
-
 plt.figure(1)
 plt.title('Signal Wave...')
 
-c1 = ys/10000
+mix_sig = ys/10000
 
-from scipy.signal import fftconvolve
+x1 = mix_sig[0:1696]
+x2 = orig_emergency[0:1696]
 
-def similarity(template, test):
-    corr = fftconvolve(template, test, mode='same')
-    return corr
-
-cor = similarity(c1[0:1696],samples[0:1696])
-
-x1 = c1[0:1696]
-x2 = samples[0:1696]
-
-cor = np.array(cor)/10000
 from correlate import *
 
-norm_corr = Correlate() #sum(x1*x2)/math.sqrt(sum(x1**2)*sum(x2**2))
-print(norm_corr.normalized_correlation(x1, x2))
+norm_corr = Correlate()
+print("norm cross_corr: " + str(norm_corr.normalized_correlation(x1, x2)))
+cor = norm_corr.similarity(mix_sig[0:1696], orig_emergency[0:1696])/10000
 
-#print(norm_corr)
-print('========================')
-print(x1[0:5])
-print(x2[0:5])
-print(x1[0]+x2[0])
-print(sum(x1[0:5],x2[0:5]))
-
-s = [1,2,3,4,5]
-s2 = [1,2,3,4,5]
-print(sum(s+s2))
-
-print(norm_corr.standard_correlate(x1,x2))
-
-print('-----------------------')
-print(max(abs(cor)))
-print(max(abs((c1)[0:1696])))
-print(max(abs((samples)[0:1696])))
-
-
-
+print("std corr: " + str(norm_corr.standard_correlate(x1,x2)))
 
 plt.plot(x1, color='blue')
 plt.plot(x2, color='red')
-
-
+plt.plot(a, color='red')
 
 plt.plot((cor), color='green')
 
-
 plt.show()
-
