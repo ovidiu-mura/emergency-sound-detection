@@ -13,7 +13,6 @@ from read_wav_fft import READ_WAV_FFT
 from mix_sounds import *
 
 # from scikits import wavread
-
 from noise import bNoise
 
 class eSound:
@@ -64,7 +63,11 @@ def main():
     b.brownian_motion()
     b.plot()
 
-    mix_sounds('eSound.wav', 'bNoise.wav')
+    mix = Mix()
+    mix.mix_sounds('eSound.wav', 'bNoise.wav')
+    if(mix.is_in_mix() == True):
+        print("info: Emergency Sound found in the mix signal!")
+        mix.plot_mix_and_original_signal()
 
     rwf = READ_WAV_FFT()
     rwf.read_wav_fft('eSound.wav')

@@ -1,3 +1,6 @@
+# author: Ovidiu Mura
+# date: May 22, 2019
+
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.io import wavfile
@@ -12,7 +15,7 @@ class READ_WAV_FFT:
         self.freqs = None
         self.file_name = None
 
-    def read_wav_fft(self, file_name='eSound.wav'):
+    def read_wav_fft(self, file_name='SineWave_440Hz.wav'):
         self.file_name = file_name
         self.samplerate, self.data = wavfile.read(file_name)
         samples = self.data.shape[0]
@@ -35,6 +38,6 @@ class READ_WAV_FFT:
             plt.plot(self.freqs[:int(self.freqs.size/2)],self.fftabs[:int(self.freqs.size/2)])
         plt.show()
 
-r = READ_WAV_FFT()
-r.read_wav_fft()
-r.plot()
+# r = READ_WAV_FFT()
+# r.read_wav_fft()
+# r.plot()

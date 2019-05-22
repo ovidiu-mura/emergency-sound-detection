@@ -1,4 +1,5 @@
-
+# author: Ovidiu Mura
+# date: May 22, 2019
 
 def filter_amps_below(signal, amp):
     # signal: signal to be filtered
