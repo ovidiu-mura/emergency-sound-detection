@@ -15,3 +15,7 @@ def filter_amps_below(signal, amp):
                 a.insert(i, signal[i])
     a[0] = 0
     return a
+
+
+# https://plot.ly/python/fft-filters/
+

@@ -14,6 +14,7 @@ import matplotlib.pyplot as plt
 from scipy.io.wavfile import write
 import configparser
 
+# Reference: https://scipy-cookbook.readthedocs.io/items/BrownianMotion.html
 class bNoise:
 
     def __init__(self):
@@ -27,6 +28,7 @@ class bNoise:
         self.n = 48000
         self.file_name = self.config.get('NOISE','BROWN_FILE')
 
+    # X(t) = X(0) + N(0, delta**2 * t; 0, t)
     def brownian_motion(self):
         for k in range(self.n*6):
             self.x = self.x + norm.rvs(scale=self.delta**2*self.dt)
@@ -74,8 +76,7 @@ class wNoise:
         plt.plot(self.noise[0:250])
         plt.show()
 
-# https://en.wikipedia.org/wiki/Pink_noise
-
+# Reference: https://en.wikipedia.org/wiki/Pink_noise
 class pNoise:
     def __init__(self):
         self.signal = None

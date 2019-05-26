@@ -6,7 +6,6 @@ import numpy as np
 from scipy.io import wavfile
 from scipy.fftpack import fft,fftfreq
 
-
 class READ_WAV_FFT:
     def __init__(self):
         self.samplerate = None
@@ -25,7 +24,6 @@ class READ_WAV_FFT:
         self.fftabs = abs(datafft)
         self.freqs = fftfreq(samples,1/self.samplerate)
 
-
     def plot(self):
         plt.xlim( [10, self.samplerate/2] )
         plt.title('FFT - file: ' + str(self.file_name))
@@ -33,7 +31,7 @@ class READ_WAV_FFT:
         plt.grid( True )
         plt.xlabel( 'Frequency (Hz)' )
         if('mix' in self.file_name):
-            plt.plot(self.freqs[1500:int(self.freqs.size/2)-10000],self.fftabs[1500:int(self.freqs.size/2)-10000])
+            plt.plot(self.freqs[0:int(self.freqs.size/2)-10000],self.fftabs[0:int(self.freqs.size/2)-10000])
         else:
             plt.plot(self.freqs[:int(self.freqs.size/2)],self.fftabs[:int(self.freqs.size/2)])
         plt.show()

@@ -64,10 +64,18 @@ def main():
     b.plot()
 
     mix = Mix()
-    mix.mix_sounds('eSound.wav', 'bNoise.wav')
+    mix.avg_mix_sounds('eSound.wav', 'bNoise.wav')
     if(mix.is_in_mix() == True):
         print("info: Emergency Sound found in the mix signal!")
         mix.plot_mix_and_original_signal()
+
+    conv = Convolute()
+    print(len(mix.samples_1))
+    print("=============")
+    print(len(mix.samples_2))
+    conv.convolve_gaussian_window(mix.samples_1, mix.samples_2)
+
+
 
     rwf = READ_WAV_FFT()
     rwf.read_wav_fft('eSound.wav')
