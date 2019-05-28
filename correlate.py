@@ -23,7 +23,7 @@ class Correlate:
         x2 = np.array(x2)/10000
         return sum(x1*x2)/math.sqrt(sum(x1**2)*sum(x2**2))
 
-    # corr(x,y) = Sum (x[n]*y[n]), 0 <= n <= n-1
+    # Calculate: corr(x,y) = Sum (x[n]*y[n]), 0 <= n <= n-1
     def standard_correlate(self, x1, x2):
         self.signal_1 = x1
         self.signal_2 = x2
@@ -34,6 +34,7 @@ class Correlate:
         size = min(lx1, lx2)
         return sum(x1[:size]*x2[:size])
 
-    def similarity(self, template, test):
-        corr = fftconvolve(template, test, mode='same')
-        return corr
+    # http://pilot.cnxproject.org/content/collection/col10064/latest/module/m10087/latest
+    # Calculate: (f∗g)(n) = sum(f(k)*g(n−k)), where −∞ <= k <= ∞
+    def discrete_linear_convolution(self, f, g):
+        return fftconvolve(f, g, mode='same')

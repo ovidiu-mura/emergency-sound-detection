@@ -13,7 +13,7 @@ from read_wav_fft import READ_WAV_FFT
 from mix_sounds import *
 
 # from scikits import wavread
-from noise import bNoise
+from noise import *
 
 class eSound:
     def __init__(self):
@@ -35,7 +35,7 @@ class eSound:
     def plot_wave(self, file_name='eSound.wav'):
         spf = wave.open(file_name,'r')
 
-        #Extract Raw Audio from Wav File
+        # Extract Raw Audio from Wav File
         signal = spf.readframes(-1)
         signal = np.frombuffer(signal, 'int32')
         plt.figure(1)
@@ -63,27 +63,53 @@ def main():
     b.brownian_motion()
     b.plot()
 
+    w = wNoise()
+    w.create_white_noise()
+    w.plot()
+
+    p = pNoise()
+    p.create_pink_noise()
+    p.plot()
+
     mix = Mix()
-    mix.avg_mix_sounds('eSound.wav', 'bNoise.wav')
-    if(mix.is_in_mix() == True):
+    output_mix_1 = config.get('MIXED_SIGNALS', 'eSOUND_bNOISE')[1:-1]
+    output_mix_2 = config.get('MIXED_SIGNALS', 'eSOUND_wNOISE')[1:-1]
+    output_mix_3 = config.get('MIXED_SIGNALS', 'eSOUND_pNOISE')[1:-1]
+
+    mix.avg_mix_sounds('eSound.wav', 'bNoise.wav', output_mix_1)
+
+    if(mix.is_in_mix('eSound.wav', 'bNoise.wav') == True):
+        print("info: Emergency Sound found in the mix signal!")
+        mix.plot_mix_and_original_signal()
+
+    mix.avg_mix_sounds('eSound.wav', 'wNoise.wav', output_mix_2)
+
+    if(mix.is_in_mix('eSound.wav', 'wNoise.wav') == True):
+        print("info: Emergency Sound found in the mix signal!")
+        mix.plot_mix_and_original_signal()
+
+    mix.avg_mix_sounds('eSound.wav', 'pNoise.wav', output_mix_3)
+
+    if(mix.is_in_mix('eSound.wav', 'pNoise.wav') == True):
         print("info: Emergency Sound found in the mix signal!")
         mix.plot_mix_and_original_signal()
 
     conv = Convolute()
-    print(len(mix.samples_1))
-    print("=============")
-    print(len(mix.samples_2))
     conv.convolve_gaussian_window(mix.samples_1, mix.samples_2)
-
-
+    conv.fft_convolve(mix.samples_1, mix.samples_2)
 
     rwf = READ_WAV_FFT()
     rwf.read_wav_fft('eSound.wav')
     rwf.plot()
 
-    rwf.read_wav_fft('mix_brown_fast.wav')
+    rwf.read_wav_fft(output_mix_1)
     rwf.plot()
 
+    rwf.read_wav_fft(output_mix_2)
+    rwf.plot()
+
+    rwf.read_wav_fft(output_mix_3)
+    rwf.plot()
 
 if __name__ == "__main__":
     main()

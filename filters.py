@@ -4,7 +4,6 @@
 def filter_amps_below(signal, amp):
     # signal: signal to be filtered
     # amp: the threshold amplitude; the amps below this amp will be considered
-    #
     a = []
     for i in range(1,238):
         if(i<237):

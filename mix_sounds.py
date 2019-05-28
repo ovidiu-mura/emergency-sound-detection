@@ -20,6 +20,7 @@ class Mix:
         self.normalized_cross_correlation = None
         self.samples_1 = None
         self.samples_2 = None
+        self.output_file = None
 
     def get_samples_from_files(self, f1, f2):
         w1 = wave.open(f1)
@@ -45,7 +46,8 @@ class Mix:
             i += c
         return i
 
-    def avg_mix_sounds(self, file1, file2):
+    def avg_mix_sounds(self, file1, file2, output_file):
+        self.output_file = output_file
         w1 = wave.open(file1)
         w2 = wave.open(file2)
 
@@ -59,15 +61,15 @@ class Mix:
 
         samples1 = [self.bin_to_int(s) for s in samples1] #['\x04\x08'] -> [0x0804]
         samples2 = [self.bin_to_int(s) for s in samples2]
-        self.orig_emergency = np.array(samples2)/10000
+        self.orig_emergency = np.array(samples1)/10000
         self.samples_1 = samples1
         self.samples_2 = samples2
 
         # average the samples:
         samples_avg = [(s1+s2)/2 for (s1, s2) in zip(samples1, samples2)]
         self.mix_signal = samples_avg
-
-        write("mix_brown_fast.wav", 48000, self.to_int16(samples_avg))
+        print("output_file: "+ str(output_file))
+        write(output_file, 48000, self.to_int16(samples_avg))
         return samples_avg
 
     def mult_mix_sounds(self, file1, file2):
@@ -90,30 +92,25 @@ class Mix:
         # values between -2^15 and 2^15 - 1.
         return int16(signal*1)
 
-    def is_in_mix(self):
-        ys = self.avg_mix_sounds("bNoise.wav", "eSound.wav")
-
+    def is_in_mix(self, s1, s2):
+        ys = self.avg_mix_sounds(s1, s2, self.output_file)
         ys = np.absolute(ys)
-        # from filters import *
-        # a = np.array(filter_amps_below(ys, 1000))/10000
-        # ba = min(a[50:])
-        # c = np.array(a)
-        # c = np.array([(0 if x<0 else x) for x in c])/10000
-
-        plt.figure(1)
-        plt.title('Signal Wave...')
 
         self.mix_signal = ys/10000
 
-        # x1 = mix_sig[0:1696]
         x1 = self.mix_signal
-        # x2 = self.orig_emergency[0:1696]
         x2 = self.orig_emergency
 
         norm_corr = Correlate()
-        self.normalized_cross_correlation = norm_corr.normalized_correlation(x1, x2)
+        size = min(len(x1), len(x2))
+        self.normalized_cross_correlation = norm_corr.normalized_correlation(x1[:size], x2[:size])
         print("norm cross_corr: " + str(self.normalized_cross_correlation))
-        # cor = norm_corr.similarity(mix_sig[0:1696], self.orig_emergency[0:1696])/10000
+        cor = norm_corr.discrete_linear_convolution(self.mix_signal[0:1696], self.orig_emergency[0:1696])/10000
+        cor2 = norm_corr.discrete_linear_convolution(self.orig_emergency[0:1696], self.orig_emergency[0:1696])/10000
+        plt.title("Discrete Linear Convolution")
+        plt.plot(cor, color='blue')
+        plt.plot(cor2, color='red')
+        plt.show()
 
         print("std corr: " + str(norm_corr.standard_correlate(x1,x2)))
         if(self.normalized_cross_correlation > 0.5):
@@ -121,7 +118,10 @@ class Mix:
         return False
 
     def plot_mix_and_original_signal(self):
+        plt.title("Mixed signal")
         plt.plot(self.mix_signal[:1000], color='blue')
+        plt.show()
+        plt.title("Emergency signal")
         plt.plot(self.orig_emergency[:1000], color='red')
         # plt.plot(a, color='red')
         # plt.plot((cor), color='green')
@@ -129,6 +129,7 @@ class Mix:
 
 
 class Convolute:
+
     def __init__(self):
         self.signal_1 = None
         self.signal_2 = None
@@ -146,19 +147,15 @@ class Convolute:
         self.convolved = convolved
 
         if (p==True):
-            plt.plot(convolved.real[:1000], color='red')
+            plt.title("Convolved signal and the Emergency signal")
             plt.plot(self.signal_1[:1000], color='blue')
+            plt.plot(convolved.real[:1000], color='red')
             plt.show()
-
-        #smooth2 = thinkdsp.Wave(convolved, framerate=wave.framerate)
-
-        #self.convoluted = np.absolute(np.convolve(self.signal_1, self.signal_2, "same")/1000000)
-        #self.convoluted = fftconvolve(self.signal_1, self.signal_2, "same")/1000000
-
 
     def fft_convolve(self, signal_1, signal_2, p=True):
         self.signal_1 = signal_1
         self.signal_2 = signal_2
+
         # Convolution Theorem: DFT( f * g) = DFT( f ) * DFT(g) -> f * g = IDFT(DFT( f ) * DFT(g))
         fft1 = np.fft.fft(self.signal_1)/100000
         fft2 = np.fft.fft(self.signal_2)/100000
@@ -167,33 +164,11 @@ class Convolute:
         fft_from_convolution_theorem = np.array(np.fft.ifft(fft1[:sz]*fft2[:sz]))
 
         if(p==True):
-            plt.plot(fft_from_convolution_theorem.real[:1000]/67000, color='black')
-            plt.plot(np.array(self.signal_1[:1000])/60000, color='silver')
+            plt.plot(fft_from_convolution_theorem.real[:1000]/60000, color='black')
+            # plt.plot(np.array(self.signal_1[:1000])/60000, color='silver')
             plt.show()
 
         c = Correlate()
         corr_value = c.normalized_correlation(fft_from_convolution_theorem[:sz].real, self.signal_1[:sz])
         if (corr_value > 0.5):
             print("info: emergency sound was detected in the brownian motion FFT convolve, using normalized cross-correlation, {0}".format(corr_value))
-
-        # norm_corr = Correlate()
-        # size = min(len(self.convoluted), len(self.signal_1))
-        # self.normalized_cross_correlation = norm_corr.normalized_correlation(self.convoluted[:size], self.signal_1[:size])
-        # print("norm cross_corr: " + str(self.normalized_cross_correlation))
-        # print("std corr: " + str(norm_corr.standard_correlate(self.signal_1, self.signal_2)))
-        # self.signal_1 = np.array(self.signal_1)/10000
-        # plt.plot(self.signal_1[:1000], color='blue')
-        # plt.show()
-
-
-
-
-mix = Mix()
-mix.add_mix_sounds('eSound.wav', 'bNoise.wav')
-# if(mix.is_in_mix() == True):
-#     print("info: Emergency Sound found in the mix signal!")
-#     mix.plot_mix_and_original_signal()
-
-# conv = Convolute()
-# conv.convolve_gaussian_window(mix.samples_1, mix.samples_2)
-# conv.fft_convolve(mix.samples_1, mix.samples_2)

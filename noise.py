@@ -87,9 +87,10 @@ class pNoise:
         self.time = np.arange(self.duration*2*self.framerate) / self.framerate
         self.config = configparser.ConfigParser()
         self.config.read('config/config.ini')
-        self.file_name = self.config.get('NOISE','PINK_FILE')
+        self.file_name = self.config.get('NOISE','PINK_FILE')[1:-1]
+        self.hs = None
 
-    def make_wave(self):
+    def create_pink_noise(self):
         np.random.seed(20)
         self.signal = np.random.uniform(-self.amplitude, self.amplitude, self.time.shape[0])
 
@@ -109,22 +110,18 @@ class pNoise:
         hs = np.absolute(hs)#**2
         #fs = np.fft.rfft(fs)
 
-        write(self.file_name[1:-1], 48000, self.to_int32(hs))
+        write(self.file_name, 48000, self.to_int32(hs))
+        self.fs = fs
+        self.hs = hs
 
+    def plot(self):
         plt.figure(1)
         plt.title('Pink Noise Wave...')
 
-        plt.plot(fs.real[10750:], hs.real[10750:], linewidth=2, color='r')
+        plt.plot(self.fs.real[10750:], self.hs.real[10750:], linewidth=2, color='r')
         plt.show()
 
     def to_int32(self, signal):
         # Take samples in [-1, 1] and scale to 32-bit integers,
         # values between -2^20 and 2^20.
         return int32(np.asarray(signal.real)*(2**20))
-
-# w = wNoise()
-# w.create_white_noise()
-# w.plot()
-#
-# n = pNoise()
-# n.make_wave()
