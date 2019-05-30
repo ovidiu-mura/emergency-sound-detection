@@ -47,6 +47,7 @@ class Filter:
     def __init__(self):
         self.signal = None
 
+    # https://tomroelandts.com/articles/how-to-create-a-simple-low-pass-filter
     def low_pass(self):
         samplerate, data = wavfile.read('eSound.wav')
         ts = np.arange(len(data))/float(samplerate)
@@ -81,5 +82,35 @@ class Filter:
         plt.grid(True)
         plt.show()
 
+    # https://www.programcreek.com/python/example/59508/scipy.signal.butter
+    def highpass(self):
+        cut_off = 500.0
+        samplerate, xn = wavfile.read("SineWave_440Hz.wav")
+        Wn = (float(cut_off) / (float(samplerate) / 2.0), 0.95)
+        b, a = signal.butter(3, Wn, 'pass')
+        z = signal.filtfilt(b, a, xn)
+        plt.plot(xn[:100], 'k--')
+        plt.plot(z[:100], 'r')
+        plt.grid(True)
+        plt.show()
+
+    # https://github.com/neurotechuoft/Wall-EEG/blob/master/Code/OpenBCIPy/src/butter_tingz.py
+    def bandpass(self):
+        samplerate, xn = wavfile.read("SineWave_440Hz.wav")
+        nyq = 0.5 * 250
+        lowcut = 10
+        highcut = 30
+        low = lowcut / nyq
+        high = highcut / nyq
+        print(low)
+        print(high)
+        b, a = signal.butter(3, [low, high], btype='band')
+        filtered_data = signal.lfilter(b, a, xn)
+
+        plt.plot(xn[:100], 'k--')
+        plt.plot(filtered_data[:100], 'r')
+        plt.grid(True)
+        plt.show()
+
 f = Filter()
-f.low_pass()
+f.bandpass()
