@@ -10,6 +10,8 @@ from scipy.io.wavfile import write
 from correlate import *
 import scipy.signal
 
+from scipy.io import wavfile
+
 class Mix:
 
     def __init__(self):
@@ -18,8 +20,8 @@ class Mix:
         self.orig_emergency = None
         self.mix_signal = None
         self.normalized_cross_correlation = None
-        self.samples_1 = None
-        self.samples_2 = None
+        self.s_1 = None
+        self.s_2 = None
         self.output_file = None
 
     def get_samples_from_files(self, f1, f2):
@@ -27,21 +29,34 @@ class Mix:
         w2 = wave.open(f2)
 
         # get samples formatted as a string.
-        samples1 = w1.readframes(w1.getnframes())
-        samples2 = w2.readframes(w2.getnframes())
+        s01 = w1.readframes(w1.getnframes())
+        s02 = w2.readframes(w2.getnframes())
 
         # takes every 2 bytes and groups them together as 1 sample. ("123456" -> ["12", "34", "56"])
-        samples1 = [samples1[i:i+2] for i in range(0, len(samples1), 2)]
-        samples2 = [samples2[i:i+2] for i in range(0, len(samples2), 2)]
+        s1 = [s01[i:i+2] for i in range(0, len(s01), 2)]
+        s2 = [s02[i:i+2] for i in range(0, len(s02), 2)]
 
-        self.samples_1 = [self.bin_to_int(s) for s in samples1] #['\x04\x08'] -> [0x0804]
-        self.samples_2 = [self.bin_to_int(s) for s in samples2]
+        self.s_1 = [self.str_to_int(s) for s in s1] #['\x04\x08'] -> [0x0804]
+        self.s_2 = [self.str_to_int(s) for s in s2]
+
+    def get_samples_from_file(self, f1):
+        w1 = wave.open(f1)
+
+        # get samples formatted as a string.
+        s01 = w1.readframes(w1.getnframes())
+
+        # takes every 2 bytes and groups them together as 1 sample. ("123456" -> ["12", "34", "56"])
+        s1 = [s01[i:i+2] for i in range(0, len(s01), 2)]
+
+        self.s_1 = [self.str_to_int(s) for s in s1] #['\x04\x08'] -> [0x0804]
+        return self.s_1
 
     # convert samples from strings to ints
-    def bin_to_int(self, bin):
+    def str_to_int(self, str):
         i = 0
-        for c in bin[::-1]: # iterate over each char in reverse (because little-endian)
-            # get the integer value of char and assign to the lowest byte of as_int, shifting the rest up
+        for c in str[::-1]: # iterate over each char in reverse (because little-endian)
+            # get the integer value from char and
+            # assign to the lowest byte of as int, then shifting the rest up
             i <<= 8
             i += c
         return i
@@ -52,21 +67,28 @@ class Mix:
         w2 = wave.open(file2)
 
         # get samples formatted as a string.
-        samples1 = w1.readframes(w1.getnframes())
-        samples2 = w2.readframes(w2.getnframes())
+        s01 = w1.readframes(w1.getnframes())
+        s02 = w2.readframes(w2.getnframes())
 
         # takes every 2 bytes and groups them together as 1 sample. ("123456" -> ["12", "34", "56"])
-        samples1 = [samples1[i:i+2] for i in range(0, len(samples1), 2)]
-        samples2 = [samples2[i:i+2] for i in range(0, len(samples2), 2)]
+        s1 = [s01[i:i+2] for i in range(0, len(s01), 2)]
+        s2 = [s02[i:i+2] for i in range(0, len(s02), 2)]
 
-        samples1 = [self.bin_to_int(s) for s in samples1] #['\x04\x08'] -> [0x0804]
-        samples2 = [self.bin_to_int(s) for s in samples2]
-        self.orig_emergency = np.array(samples1)/10000
-        self.samples_1 = samples1
-        self.samples_2 = samples2
+        # samples1 = [self.bin_to_int(s) for s in samples1] #['\x04\x08'] -> [0x0804]
+        s_1 = [self.str_to_int(s) for s in s1] #['\x04\x08'] -> [0x0804]
+        s_2 = [self.str_to_int(s) for s in s2]
+
+        self.orig_emergency = np.array(s_1)/10000
+
+        self.s_1 = s_1
+        self.s_2 = s_2
+
+        plt.plot(self.s_1[:300], color="red")
+        plt.grid(True)
+        plt.show()
 
         # average the samples:
-        samples_avg = [(s1+s2)/2 for (s1, s2) in zip(samples1, samples2)]
+        samples_avg = [(s1+s2)/2 for (s1, s2) in zip(s_1, s_2)]
         self.mix_signal = samples_avg
         print("output_file: "+ str(output_file))
         write(output_file, 48000, self.to_int16(samples_avg))
@@ -74,15 +96,15 @@ class Mix:
 
     def mult_mix_sounds(self, file1, file2):
         self.get_samples_from_files(file1, file2)
-        sz = min(len(self.samples_1),len(self.samples_2))
-        multiply_signals = np.absolute(np.array(self.samples_1[:sz])*np.array(self.samples_2[:sz])/100000)
+        sz = min(len(self.s_1),len(self.s_2))
+        multiply_signals = np.absolute(np.array(self.s_1[:sz])*np.array(self.s_2[:sz])/100000)
         plt.plot(multiply_signals[:1000], color='red')
         plt.show()
 
     def add_mix_sounds(self, file1, file2):
         self.get_samples_from_files(file1, file2)
-        sz = min(len(self.samples_1),len(self.samples_2))
-        add_signals = np.add(np.array(self.samples_1[:sz]),np.array(self.samples_2[:sz]))/10000
+        sz = min(len(self.s_1),len(self.s_2))
+        add_signals = np.add(np.array(self.s_1[:sz]),np.array(self.s_2[:sz]))/10000
         plt.plot(add_signals[:1000], color='blue')
         #plt.plot(self.samples_1[:1000], color='gray')
         plt.show()

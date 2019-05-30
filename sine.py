@@ -18,7 +18,7 @@ class Sine:
         for i in range(self.numSamples):
             sample = 32767 * float(self.volume) / 100
             sample *= math.sin(math.pi * 2 * (i % self.numSamplesPerCyc) / self.numSamplesPerCyc)
-            #sample = math.sin(math.pi * 2 * (i % numSamplesPerCyc) / numSamplesPerCyc)
+            #sample = math.sin(math.pi * 2 * (i % self.numSamplesPerCyc) / self.numSamplesPerCyc)
             self.data.append(int(sample))
         f = wave.open('SineWave_' + str(self.freq) + 'Hz.wav', 'w')
         f.setparams((self.numChan, self.dataSize, self.sampleRate, self.numSamples, "NONE", "Uncompressed"))

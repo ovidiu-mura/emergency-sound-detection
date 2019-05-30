@@ -55,29 +55,29 @@ def main():
     project_name = config.get('DEFAULT','PROJECT_NAME')
 
     print("Welcome to " + str(project_name) + "!")
-    c = eSound()
-    c.create_emergency_sound()
-    c.plot_wave()
+    # c = eSound()
+    # c.create_emergency_sound()
+    # c.plot_wave()
 
-    b = bNoise()
-    b.brownian_motion()
-    b.plot()
-
-    w = wNoise()
-    w.create_white_noise()
-    w.plot()
-
-    p = pNoise()
-    p.create_pink_noise()
-    p.plot()
+    # b = bNoise()
+    # b.brownian_motion()
+    # b.plot()
+    #
+    # w = wNoise()
+    # w.create_white_noise()
+    # w.plot()
+    #
+    # p = pNoise()
+    # p.create_pink_noise()
+    # p.plot()
 
     mix = Mix()
     output_mix_1 = config.get('MIXED_SIGNALS', 'eSOUND_bNOISE')[1:-1]
     output_mix_2 = config.get('MIXED_SIGNALS', 'eSOUND_wNOISE')[1:-1]
     output_mix_3 = config.get('MIXED_SIGNALS', 'eSOUND_pNOISE')[1:-1]
 
-    mix.avg_mix_sounds('eSound.wav', 'bNoise.wav', output_mix_1)
-
+    mix.avg_mix_sounds('sine.wav', 'bNoise.wav', output_mix_1)
+    exit(2)
     if(mix.is_in_mix('eSound.wav', 'bNoise.wav') == True):
         print("info: Emergency Sound found in the mix signal!")
         mix.plot_mix_and_original_signal()
