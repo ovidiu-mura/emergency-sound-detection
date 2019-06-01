@@ -4,7 +4,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.io import wavfile
-from scipy.fftpack import fft,fftfreq
+from scipy.fftpack import fft,fftfreq, ifft
 
 class READ_WAV_FFT:
     def __init__(self):
@@ -23,6 +23,30 @@ class READ_WAV_FFT:
         # Get the absolute value of real and complex component
         self.fftabs = abs(datafft)
         self.freqs = fftfreq(samples,1/self.samplerate)
+
+    def read_fft(self, signal, samplerate):
+        self.data = signal
+        self.samplerate = samplerate
+        datafft = fft(self.data)
+        samples = len(self.data)
+
+        # Get the absolute value of real and complex component
+        self.fftabs = abs(datafft)
+        self.freqs = fftfreq(samples,1/self.samplerate)
+
+    def plot_fft(self):
+        plt.xlim( [10, self.samplerate/2] )
+        plt.title('FFT - file: ' + str(self.file_name))
+        plt.xscale( 'log' )
+        plt.grid( True )
+        plt.xlabel( 'Frequency (Hz)' )
+        plt.plot(self.freqs[0:int(self.freqs.size/2)],self.fftabs[0:int(self.freqs.size/2)])
+        for i in range(int(self.freqs.size/2)):
+            if(self.fftabs[i] > 1000000):
+                idx = list(self.fftabs).index(self.fftabs[i])
+                #print(self.freqs[idx])
+        plt.show()
+
 
     def plot(self):
         plt.xlim( [10, self.samplerate/2] )
