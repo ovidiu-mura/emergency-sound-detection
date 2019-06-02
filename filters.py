@@ -38,50 +38,29 @@ class Filter:
 
     def __init__(self):
         self.signal = None
-
-    # https://tomroelandts.com/articles/how-to-create-a-simple-low-pass-filter
-    def low_pass(self):
-        samplerate, data = wavfile.read('SineWave_440Hz.wav')
-        ts = np.arange(len(data))/float(samplerate)
-        #plt.plot(ts[:2000], data[:2000], label='orig')
-        x = rfft(data)
-        x = np.abs(x)
-        fs = samplerate
-        fc = 130.0 # Cut-off frequency of the filter
-        w = fc / (fs / 2) # Normalize the frequency
-        b, a = signal.butter(8, w, 'low')
-
-        output = signal.filtfilt(b, a, x)
-
-        y = irfft(output)
-        #y = np.abs(y)
-        f = rfftfreq(len(y), 1/fs)
-
-        #plt.plot(f[:int(f.size/2)-58000], y[:int(y.size/2)-58000], 'r')
-        plt.plot(f[0:5000], y[0:5000], 'b')
-        plt.plot(f[0:5000], data[0:5000], 'r')
-        plt.grid(True)
-        plt.show()
+        self.goertzel_freqs = {}
+        self.norm = None
+        self.coeffs = None
 
     # https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.lfilter.html
+    # https://tomroelandts.com/articles/how-to-create-a-simple-low-pass-filter
     def lowpass(self):
         samplerate, x0 = wavfile.read("SineWave_440Hz.wav")
-        xn = np.array(x0)
-        xn = fft(xn)
+        #xn = np.array(x0)
+        xn = fft(x0)
         t = np.arange(len(xn))/float(samplerate)
         cut_off = 500.0
         Wn = (float(cut_off) / (float(samplerate) / 2.0))
-        b, a = signal.butter(3, 0.25, 'low')
-        # zi = signal.lfilter_zi(b, a)
-        # z, _ = signal.lfilter(b, a, xn, zi=zi*xn[0])
-        # z2, _ = signal.lfilter(b, a, z, zi=zi*z[0])
+
+        b, a = signal.butter(3, Wn, 'low')
+
         y = signal.filtfilt(b, a, xn)
 
         yy = ifft(y)
         xx = fftfreq(len(xn), 1/samplerate)
 
-        plt.plot(xx[2000:25000].real, x0[2000:25000].real, 'red')
-        plt.plot(xx[2000:25000].real, yy[2000:25000].real, 'green')
+        plt.plot(xx[:10000].real, x0[:10000].real, 'red')
+        plt.plot(xx[:10000].real, yy[:10000].real, 'green')
         # plt.plot(xx[:int(xx.size/2)].real, yy[:int(yy.size/2)].real, 'green')
 
         # plt.figure
@@ -104,6 +83,7 @@ class Filter:
         f1 = fft(xn)
 
         Wn = (float(cut_off) / (float(samplerate) / 2.0))
+
         b, a = signal.butter(3, Wn, 'high')
 
         z = signal.filtfilt(b, a, f1)
@@ -144,9 +124,39 @@ class Filter:
         plt.show()
 
 
-from read_wav_fft import *
+    def goertzel(self, x, f):
+        """x is an array of samples, f is the target frequency.
+        Returns the output magnitude."""
+        import math
+        w0 = float((2*math.pi*f)/44100)
+        n = len(x)
+        self.norm = np.exp(1j * w0 * n)
+        self.coeffs = np.exp(np.array([-1j * w0 * k for k in range(n)]))
+        y = np.abs(self.norm * np.dot(self.coeffs, x))
+        self.goertzel_freqs[f] = y
+        return y
 
 
-f = Filter()
+def get_sine_freq(p=True):
+    f = Filter()
 
-f.bandpass()
+    samplerate, data = wavfile.read('SineWave_440Hz.wav')
+
+    freqs = {}
+
+    for i in range(150):
+        m = f.goertzel(data, 420+i)
+        freqs[420+i] = m
+
+    m = max(freqs.values())
+    idx = list(freqs.values()).index(m)
+    freq = list(freqs.keys())[idx]
+
+    if(p):
+        plt.plot(freqs.keys(), freqs.values(), color='green')
+        plt.show()
+
+    return freq
+
+# f = Filter()
+# f.lowpass()

@@ -21,12 +21,12 @@ class eSound:
         self.N = 48000
         self.file_name = 'eSound.wav'
 
-    def f(self, t, f_c, f_m, beta):
+    def f(self, t, fc, fm, beta):
         # t    = time
-        # f_c  = carrier frequency
-        # f_m  = modulation frequency
+        # fc  = carrier frequency
+        # fm  = modulation frequency
         # beta = modulation index
-        return sin(2*pi*f_c*t - beta*sin(2*f_m*pi*t))
+        return sin(2*pi*fc*t - beta*sin(2*fm*pi*t))
 
     def to_int16(self, signal):
         # Take samples in [-1, 1] and scale to 16-bit integers,
@@ -50,40 +50,43 @@ class eSound:
         write(self.file_name, self.N, self.to_int16(data))
 
 def main():
-    parser = argparse.ArgumentParser(description="Emergency Sound Detection")
-    parser.add_argument('--h', help='Emergency Sound Detection Command Line help')
-    parser.add_argument('--one', '-one', dest='go', help='example')
-    #parser.add_argument('--one', dest='go', help='example')
-    args = parser.parse_args()
-    parser.print_usage()
-    if(args.go == 'yo'):
-        print("GOOD JOB!")
-        exit(23)
-
-    print(args)
-    exit(2)
 
     config = configparser.ConfigParser()
     config.read('config/config.ini')
     project_name = config.get('DEFAULT','PROJECT_NAME')
 
+    parser = argparse.ArgumentParser(description="Emergency Sound Detection")
+    # parser.add_argument('--h', help='Emergency Sound Detection Command Line help')
+    parser.add_argument('--create', '-create', dest='wav', default='esound', help='create wave files: emergency sound, white noise, pink noise, and brown noise')
+    parser.add_argument('--avg_mix', '-avg_mix', dest='')
+    args = parser.parse_args()
+
     print("Welcome to " + str(project_name) + "!")
 
-    c = eSound()
-    c.create_emergency_sound()
-    c.plot_wave()
+    if(args.wav in ('all')):
+        print("info: creating emergency sound, white noise, pink noise, brown noise!")
 
-    b = bNoise()
-    b.brownian_motion()
-    b.plot()
+        c = eSound()
+        c.create_emergency_sound()
+        #c.plot_wave()
 
-    w = wNoise()
-    w.create_white_noise()
-    w.plot()
+        b = bNoise()
+        b.brownian_motion()
+        #b.plot()
 
-    p = pNoise()
-    p.create_pink_noise()
-    p.plot()
+        w = wNoise()
+        w.create_white_noise()
+        #w.plot()
+
+        p = pNoise()
+        p.create_pink_noise()
+        #p.plot()
+        print('info: wav files (eSound.wav, bNoise.wav, pNoise.wav, wNoise.wav), successfully created')
+    else:
+        parser.print_usage()
+
+    # print(args)
+    exit(2)
 
     mix = Mix()
     output_mix_1 = config.get('MIXED_SIGNALS', 'eSOUND_bNOISE')[1:-1]

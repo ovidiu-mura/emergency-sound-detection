@@ -16,11 +16,18 @@ class Sine:
 
     def create_wave(self):
         for i in range(self.numSamples):
-            sample = 32767 * float(self.volume) / 100
-            sample *= math.sin(math.pi * 2 * (i % self.numSamplesPerCyc) / self.numSamplesPerCyc)
-            #sample = math.sin(math.pi * 2 * (i % self.numSamplesPerCyc) / self.numSamplesPerCyc)
+            v = 32767 * float(self.volume) / 100
+            #sample *= math.sin(math.pi * 2 * (i % self.numSamplesPerCyc) / self.numSamplesPerCyc)
+            sample = math.sin(math.pi * 2 * (i % self.numSamplesPerCyc) / self.numSamplesPerCyc)
+            sample *= v
             self.data.append(int(sample))
         f = wave.open('SineWave_' + str(self.freq) + 'Hz.wav', 'w')
         f.setparams((self.numChan, self.dataSize, self.sampleRate, self.numSamples, "NONE", "Uncompressed"))
         f.writeframes(self.data.tostring())
         f.close()
+
+s = Sine()
+
+s.create_wave()
+
+
