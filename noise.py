@@ -28,7 +28,10 @@ class bNoise:
         self.n = 48000
         self.file_name = self.config.get('NOISE','BROWN_FILE')
 
+    # Brownian motion is generated using formula
     # X(t) = X(0) + N(0, delta**2 * t; 0, t)
+    # where N(a,b;t1,t2) is a normally distributed random variable with mean a and variance b;
+    # t1 and t2 is the time interval of N.
     def brownian_motion(self):
         for k in range(self.n*6):
             self.x = self.x + norm.rvs(scale=self.delta**2*self.dt)
@@ -66,6 +69,9 @@ class wNoise:
         self.config.read('config/config.ini')
         self.file_name = self.config.get('NOISE','WHITE_FILE')
 
+    # Generate white noise by producing random signal having equal intensity
+    # at different frequencies, giving a constant power spectral density.
+    # random.uniform(-amplitudes, +amplitudes, time)
     def create_white_noise(self):
         self.noise = np.random.uniform(-self.amplitude, self.amplitude, self.time.shape[0])
         write(self.file_name[1:-1], 48000, int32(self.noise*2**10))

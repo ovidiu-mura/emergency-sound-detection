@@ -83,16 +83,29 @@ class Mix:
         self.s_1 = s_1
         self.s_2 = s_2
 
-        plt.plot(self.s_1[:300], color="red")
-        plt.grid(True)
-        plt.show()
-
         # average the samples:
         samples_avg = [(s1+s2)/2 for (s1, s2) in zip(s_1, s_2)]
         self.mix_signal = samples_avg
         print("output_file: "+ str(output_file))
         write(output_file, 48000, self.to_int16(samples_avg))
         return samples_avg
+
+    def avg_mix(self, f1, f2):
+        samplerate1, x1 = wavfile.read(f1)
+        samplerate2, x2 = wavfile.read(f2)
+
+        m = [(s1+s2)/2 for (s1, s2) in zip(np.array(x1), np.array(x2))]
+        m = np.array(m)/1000
+        mm = self.to_int16(m)
+
+        plt.title("Average Mix Signals")
+        #plt.plot(np.absolute(x1[:1000]), color='red')
+        #plt.plot(np.absolute(x2[:1000]), color='green')
+        plt.plot(mm[:10000], color="blue")
+        plt.legend(("signal 1", "signal 2", "mixed signals"), loc='best')
+        plt.show()
+        write("mix.wav", 48000, mm)
+
 
     def mult_mix_sounds(self, file1, file2):
         self.get_samples_from_files(file1, file2)
@@ -145,8 +158,9 @@ class Mix:
         plt.show()
         plt.title("Emergency signal")
         plt.plot(self.orig_emergency[:1000], color='red')
-        # plt.plot(a, color='red')
-        # plt.plot((cor), color='green')
+        plt.plot(self.s_2[:1000], color='green')
+        plt.plot(self.mix_signal[:1000], color='blue')
+        plt.legend(("emergency signal", "noise", "mixed signals"), loc='best')
         plt.show()
 
 

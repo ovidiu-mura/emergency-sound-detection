@@ -123,7 +123,6 @@ class Filter:
         plt.grid(True)
         plt.show()
 
-
     def goertzel(self, x, f):
         """x is an array of samples, f is the target frequency.
         Returns the output magnitude."""
@@ -136,11 +135,10 @@ class Filter:
         self.goertzel_freqs[f] = y
         return y
 
-
-def get_sine_freq(p=True):
+def get_sine_freq(file_name='SineWave_440Hz.wav', p=True):
     f = Filter()
 
-    samplerate, data = wavfile.read('SineWave_440Hz.wav')
+    samplerate, data = wavfile.read(file_name)
 
     freqs = {}
 
@@ -155,8 +153,4 @@ def get_sine_freq(p=True):
     if(p):
         plt.plot(freqs.keys(), freqs.values(), color='green')
         plt.show()
-
     return freq
-
-# f = Filter()
-# f.lowpass()

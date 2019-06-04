@@ -1,7 +1,7 @@
 # author: Ovidiu Mura
 # date: April 30, 2019
 
-# OSI licence: https://opensource.org/approval
+# Reference: https://www.johndcook.com/blog/2016/03/10/creating-police-siren-sounds-with-frequency-modulation/
 
 from scipy.io.wavfile import write
 from numpy import arange, pi, sin, int32, int16
@@ -21,12 +21,12 @@ class eSound:
         self.N = 48000
         self.file_name = 'eSound.wav'
 
-    def f(self, t, fc, fm, beta):
-        # t    = time
-        # fc  = carrier frequency
-        # fm  = modulation frequency
-        # beta = modulation index
-        return sin(2*pi*fc*t - beta*sin(2*fm*pi*t))
+    def freq_modulation(self, t, cf, mf, beta):
+        # t - time
+        # cf - carrier frequency
+        # mf - modulation frequency
+        # beta - modulation index
+        return sin(2*pi*cf*t - beta*sin(2*mf*pi*t))
 
     def to_int16(self, signal):
         # Take samples in [-1, 1] and scale to 16-bit integers,
@@ -46,8 +46,10 @@ class eSound:
 
     def create_emergency_sound(self):
         x = arange(0,3*self.N,0.5,float) # three seconds of audio
-        data = self.f(x/self.N, 1000, 8, 100)
+        data = self.freq_modulation(x/self.N, 1000, 8, 100)
         write(self.file_name, self.N, self.to_int16(data))
+
+import sys
 
 def main():
 
@@ -57,13 +59,17 @@ def main():
 
     parser = argparse.ArgumentParser(description="Emergency Sound Detection")
     # parser.add_argument('--h', help='Emergency Sound Detection Command Line help')
-    parser.add_argument('--create', '-create', dest='wav', default='esound', help='create wave files: emergency sound, white noise, pink noise, and brown noise')
-    parser.add_argument('--avg_mix', '-avg_mix', dest='')
+    parser.add_argument('--create', '-create', dest='wav', default='none', help='create wave files: emergency sound, white noise, pink noise, and brown noise')
+    parser.add_argument('--avg_mix', '-avg_mix', dest='avg_mix', default='none')
     args = parser.parse_args()
+
+    if (len(sys.argv)==1):
+        parser.print_usage()
+        exit(1)
 
     print("Welcome to " + str(project_name) + "!")
 
-    if(args.wav in ('all')):
+    if(args.wav is not 'none' and args.wav in ('all')):
         print("info: creating emergency sound, white noise, pink noise, brown noise!")
 
         c = eSound()
@@ -82,19 +88,19 @@ def main():
         p.create_pink_noise()
         #p.plot()
         print('info: wav files (eSound.wav, bNoise.wav, pNoise.wav, wNoise.wav), successfully created')
-    else:
-        parser.print_usage()
+    elif(args.avg_mix in ('mix')):
+        output_mix_1 = config.get('MIXED_SIGNALS', 'eSOUND_bNOISE')[1:-1]
+        output_mix_2 = config.get('MIXED_SIGNALS', 'eSOUND_wNOISE')[1:-1]
+        output_mix_3 = config.get('MIXED_SIGNALS', 'eSOUND_pNOISE')[1:-1]
 
-    # print(args)
-    exit(2)
+        mix = Mix()
+        #mix.avg_mix('eSound.wav', 'bNoise.wav')
+        mix.avg_mix_sounds('eSound.wav', 'bNoise.wav', output_mix_1)
+        mix.plot_mix_and_original_signal()
+        exit(2)
 
-    mix = Mix()
-    output_mix_1 = config.get('MIXED_SIGNALS', 'eSOUND_bNOISE')[1:-1]
-    output_mix_2 = config.get('MIXED_SIGNALS', 'eSOUND_wNOISE')[1:-1]
-    output_mix_3 = config.get('MIXED_SIGNALS', 'eSOUND_pNOISE')[1:-1]
-
-    mix.avg_mix_sounds('sine.wav', 'bNoise.wav', output_mix_1)
-
+ #   mix.avg_mix_sounds('sine.wav', 'bNoise.wav', output_mix_1)
+    exit(1)
     if(mix.is_in_mix('eSound.wav', 'bNoise.wav') == True):
         print("info: Emergency Sound found in the mix signal!")
         mix.plot_mix_and_original_signal()
