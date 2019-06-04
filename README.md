@@ -38,6 +38,7 @@ The project runs using command line parameters. You can execute the following co
 or run the following command line with the -h and --h arguments to print more info of the usage
 
 >python main.py -h
+
 >python main.py --h
 
 
