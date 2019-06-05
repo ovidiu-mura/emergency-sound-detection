@@ -19,6 +19,7 @@ class Mix:
         self.file2 = None
         self.orig_emergency = None
         self.mix_signal = None
+        self.noise_name = None
         self.normalized_cross_correlation = None
         self.s_1 = None
         self.s_2 = None
@@ -70,12 +71,11 @@ class Mix:
         s01 = w1.readframes(w1.getnframes())
         s02 = w2.readframes(w2.getnframes())
 
-        # takes every 2 bytes and groups them together as 1 sample. ("123456" -> ["12", "34", "56"])
+        # takes every 2 bytes and groups them together as 1 sample. ("1234" -> ["12", "34"])
         s1 = [s01[i:i+2] for i in range(0, len(s01), 2)]
         s2 = [s02[i:i+2] for i in range(0, len(s02), 2)]
 
-        # samples1 = [self.bin_to_int(s) for s in samples1] #['\x04\x08'] -> [0x0804]
-        s_1 = [self.str_to_int(s) for s in s1] #['\x04\x08'] -> [0x0804]
+        s_1 = [self.str_to_int(s) for s in s1]
         s_2 = [self.str_to_int(s) for s in s2]
 
         self.orig_emergency = np.array(s_1)/10000
@@ -90,21 +90,34 @@ class Mix:
         write(output_file, 48000, self.to_int16(samples_avg))
         return samples_avg
 
-    def avg_mix(self, f1, f2):
+    def avg_mix(self, f1, f2, output_file):
+        self.output_file = output_file
+        if('b' == f2[0]):
+            self.noise_name = 'brown'
+        elif ('w' == f2[0]):
+            self.noise_name = 'white'
+        elif ('p' == f2[0]):
+            self.noise_name = 'pink'
         samplerate1, x1 = wavfile.read(f1)
         samplerate2, x2 = wavfile.read(f2)
-
+        self.s_1 = x1
+        self.s_2 = x2
+        self.orig_emergency = x1
         m = [(s1+s2)/2 for (s1, s2) in zip(np.array(x1), np.array(x2))]
         m = np.array(m)/1000
+        self.mix_signal = m
         mm = self.to_int16(m)
+        write(output_file, 48000, mm)
+        return mm
 
-        plt.title("Average Mix Signals")
-        #plt.plot(np.absolute(x1[:1000]), color='red')
-        #plt.plot(np.absolute(x2[:1000]), color='green')
-        plt.plot(mm[:10000], color="blue")
-        plt.legend(("signal 1", "signal 2", "mixed signals"), loc='best')
+    def plot_avg_mix(self):
+        plt.title("Average Mix Emergency and Noise Signals")
+        plt.plot(np.absolute(self.s_2[:10000]/1000), color='green')
+        plt.plot(np.absolute(self.mix_signal[:10000]), color="blue")
+        plt.plot(np.array(self.s_1[:10000]), color='red')
+        noise = self.noise_name + ' noise'
+        plt.legend((noise, "mixed signals", "emergency"), loc='upper right')
         plt.show()
-        write("mix.wav", 48000, mm)
 
 
     def mult_mix_sounds(self, file1, file2):
@@ -119,16 +132,16 @@ class Mix:
         sz = min(len(self.s_1),len(self.s_2))
         add_signals = np.add(np.array(self.s_1[:sz]),np.array(self.s_2[:sz]))/10000
         plt.plot(add_signals[:1000], color='blue')
-        #plt.plot(self.samples_1[:1000], color='gray')
+        # plt.plot(self.samples_1[:1000], color='gray')
         plt.show()
 
     def to_int16(self, signal):
         # Take samples in [-1, 1] and scale to 16-bit integers,
         # values between -2^15 and 2^15 - 1.
-        return int16(signal*1)
+        return int16(signal*2**10)
 
-    def is_in_mix(self, s1, s2):
-        ys = self.avg_mix_sounds(s1, s2, self.output_file)
+    def is_in_mix(self, s1, s2, ofile):
+        ys = self.avg_mix_sounds(s1, s2, ofile)
         ys = np.absolute(ys)
 
         self.mix_signal = ys/10000
@@ -140,32 +153,31 @@ class Mix:
         size = min(len(x1), len(x2))
         self.normalized_cross_correlation = norm_corr.normalized_correlation(x1[:size], x2[:size])
         print("norm cross_corr: " + str(self.normalized_cross_correlation))
+
+
         cor = norm_corr.discrete_linear_convolution(self.mix_signal[0:1696], self.orig_emergency[0:1696])/10000
         cor2 = norm_corr.discrete_linear_convolution(self.orig_emergency[0:1696], self.orig_emergency[0:1696])/10000
         plt.title("Discrete Linear Convolution")
         plt.plot(cor, color='blue')
         plt.plot(cor2, color='red')
+        plt.legend(("mixed and emergency signals", "emergency signal"), loc="lower center")
         plt.show()
 
-        print("std corr: " + str(norm_corr.standard_correlate(x1,x2)))
+        #print("std corr: " + str(norm_corr.standard_correlate(x1,x2)))
         if(self.normalized_cross_correlation > 0.5):
             return True
         return False
 
     def plot_mix_and_original_signal(self):
-        plt.title("Mixed signal")
-        plt.plot(self.mix_signal[:1000], color='blue')
-        plt.show()
-        plt.title("Emergency signal")
+        plt.title("Mix Emergency signal with Noise signal")
         plt.plot(self.orig_emergency[:1000], color='red')
         plt.plot(self.s_2[:1000], color='green')
         plt.plot(self.mix_signal[:1000], color='blue')
-        plt.legend(("emergency signal", "noise", "mixed signals"), loc='best')
+        plt.legend(("emergency signal", "noise", "mixed signals"), loc='upper right')
         plt.show()
 
 
 class Convolute:
-
     def __init__(self):
         self.signal_1 = None
         self.signal_2 = None

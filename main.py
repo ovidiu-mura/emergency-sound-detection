@@ -60,12 +60,20 @@ def main():
     parser = argparse.ArgumentParser(description="Emergency Sound Detection")
     # parser.add_argument('--h', help='Emergency Sound Detection Command Line help')
     parser.add_argument('--create', '-create', dest='wav', default='none', help='create wave files: emergency sound, white noise, pink noise, and brown noise')
-    parser.add_argument('--avg_mix', '-avg_mix', dest='avg_mix', default='none')
+    parser.add_argument('--avg_mix_plot', '-avg_mix_plot', dest='avg_mix_plot', default='none', help='Use any [<brown>, <white>, <pink>] mix emergency signal with the brown, white, or pink noise'
+                                                                                     '\nUse any [<plot>, <plot_white>, <plot_brown>, <plot_pink> ] to mix the emergency sound with the corresponding noise and plot')
+    parser.add_argument('--is_emergency_signal_in_mix', '-is_emergency_signal_in_mix', dest='noise_type', help='Use [<brown>, <white>, <pink>] to search the emergency signal in the mixed signal with the corresponding noise')
     args = parser.parse_args()
-
+    parser.print_usage()
     if (len(sys.argv)==1):
         parser.print_usage()
         exit(1)
+
+    output_mix_1 = config.get('MIXED_SIGNALS', 'eSOUND_bNOISE')[1:-1]
+    output_mix_2 = config.get('MIXED_SIGNALS', 'eSOUND_wNOISE')[1:-1]
+    output_mix_3 = config.get('MIXED_SIGNALS', 'eSOUND_pNOISE')[1:-1]
+
+    mix = Mix()
 
     print("Welcome to " + str(project_name) + "!")
 
@@ -88,30 +96,38 @@ def main():
         p.create_pink_noise()
         #p.plot()
         print('info: wav files (eSound.wav, bNoise.wav, pNoise.wav, wNoise.wav), successfully created')
-    elif(args.avg_mix in ('mix')):
-        output_mix_1 = config.get('MIXED_SIGNALS', 'eSOUND_bNOISE')[1:-1]
-        output_mix_2 = config.get('MIXED_SIGNALS', 'eSOUND_wNOISE')[1:-1]
-        output_mix_3 = config.get('MIXED_SIGNALS', 'eSOUND_pNOISE')[1:-1]
 
-        mix = Mix()
-        #mix.avg_mix('eSound.wav', 'bNoise.wav')
-        mix.avg_mix_sounds('eSound.wav', 'bNoise.wav', output_mix_1)
-        mix.plot_mix_and_original_signal()
-        exit(2)
+    # mix and plot the emergency signal with the noise signal
+    elif(args.avg_mix_plot in ('plot', 'brown', 'white', 'pink', 'plot_white', 'plot_brown', 'plot_pink')):
+        if(args.avg_mix_plot == 'brown'):
+            mix.avg_mix('eSound.wav', 'bNoise.wav', output_mix_1)
+        elif (args.avg_mix_plot == 'white'):
+            mix.avg_mix('eSound.wav', 'wNoise.wav', output_mix_2)
+        elif (args.avg_mix_plot == 'pink'):
+            mix.avg_mix('eSound.wav', 'pNoise.wav', output_mix_3)
+        elif (args.avg_mix_plot == 'plot_brown'):
+            mix.avg_mix('eSound.wav', 'bNoise.wav', output_mix_1)
+            mix.plot_avg_mix()
+        elif (args.avg_mix_plot == "plot_white"):
+            mix.avg_mix('eSound.wav', 'wNoise.wav', output_mix_2)
+            mix.plot_avg_mix()
+        elif (args.avg_mix_plot == 'plot_pink'):
+            mix.avg_mix('eSound.wav', 'pNoise.wav', output_mix_3)
+            mix.plot_avg_mix()
+    elif (args.noise_type in ('white', 'pink', 'brown')):
+        if(mix.is_in_mix('eSound.wav', 'bNoise.wav', output_mix_1) == True):
+            print("info: Emergency Sound found in the mix signal!")
+            #mix.plot_mix_and_original_signal()
+    exit(2)
 
- #   mix.avg_mix_sounds('sine.wav', 'bNoise.wav', output_mix_1)
-    exit(1)
-    if(mix.is_in_mix('eSound.wav', 'bNoise.wav') == True):
-        print("info: Emergency Sound found in the mix signal!")
-        mix.plot_mix_and_original_signal()
-
-    mix.avg_mix_sounds('eSound.wav', 'wNoise.wav', output_mix_2)
+    #mix.avg_mix_sounds('eSound.wav', 'wNoise.wav', output_mix_2)
 
     if(mix.is_in_mix('eSound.wav', 'wNoise.wav') == True):
         print("info: Emergency Sound found in the mix signal!")
         mix.plot_mix_and_original_signal()
 
-    mix.avg_mix_sounds('eSound.wav', 'pNoise.wav', output_mix_3)
+
+    #mix.avg_mix_sounds('eSound.wav', 'pNoise.wav', output_mix_3)
 
     if(mix.is_in_mix('eSound.wav', 'pNoise.wav') == True):
         print("info: Emergency Sound found in the mix signal!")
