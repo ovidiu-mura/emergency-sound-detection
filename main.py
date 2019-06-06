@@ -62,7 +62,8 @@ def main():
     parser.add_argument('--create', '-create', dest='wav', default='none', help='create wave files: emergency sound, white noise, pink noise, and brown noise')
     parser.add_argument('--avg_mix_plot', '-avg_mix_plot', dest='avg_mix_plot', default='none', help='Use any [<brown>, <white>, <pink>] mix emergency signal with the brown, white, or pink noise'
                                                                                      '\nUse any [<plot>, <plot_white>, <plot_brown>, <plot_pink> ] to mix the emergency sound with the corresponding noise and plot')
-    parser.add_argument('--is_emergency_signal_in_mix', '-is_emergency_signal_in_mix', dest='noise_type', help='Use [<brown>, <white>, <pink>] to search the emergency signal in the mixed signal with the corresponding noise')
+    parser.add_argument('--is_emergency_signal_in_mix', '-is_emergency_signal_in_mix', dest='noise_type', default='none', help='Use [<brown>, <white>, <pink>] to search the emergency signal in the mixed signal with the corresponding noise')
+    parser.add_argument('--convolve', '-convolve', dest='convolve', default='none', help='Use [<esound>] to convolve emergency sound with the Gaussian window, and Convolution Theorem')
     args = parser.parse_args()
     #parser.print_usage()
     if (len(sys.argv)==1):
@@ -139,11 +140,19 @@ def main():
             if(mix.is_in_mix('eSound.wav', 'pNoise.wav', output_mix_3) == True):
                 print("info: Emergency Sound found in the mix signal!")
                 mix.plot_avg_mix()
+    elif (args.convolve in ('esound', 'brown', 'white', 'pink')):
+        conv = Convolute()
+        if(args.convolve == 'esound'):
+            conv.convolve_gaussian_window()
+            conv.fft_convolve()
+        elif(args.convolve == 'brown'):
+            conv.fft_convolve('eSound.wav', 'bNoise.wav')
+        elif(args.convolve == 'white'):
+            conv.fft_convolve('eSound.wav', 'wNoise.wav')
+        elif(args.convolve == 'pink'):
+            conv.fft_convolve('eSound.wav', 'pNoise.wav')
 
     exit(2)
-    conv = Convolute()
-    conv.convolve_gaussian_window(mix.samples_1, mix.samples_2)
-    conv.fft_convolve(mix.samples_1, mix.samples_2)
 
     rwf = READ_WAV_FFT()
     rwf.read_wav_fft('eSound.wav')

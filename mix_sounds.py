@@ -188,10 +188,11 @@ class Convolute:
         self.signal_2 = None
         self.convolved = None
         self.gaussian_window = None
+        self.noise_name = None
 
-    def convolve_gaussian_window(self, s1, s2, p=True):
-        self.signal_1 = s1
-        self.signal_2 = s2
+    def convolve_gaussian_window(self, p=True):
+        samplerate1, x1 = wavfile.read('eSound.wav')
+        self.signal_1 = x1
 
         self.gaussian_window = scipy.signal.gaussian(M=11, std=2)
         self.gaussian_window /= sum(self.gaussian_window)
@@ -200,28 +201,51 @@ class Convolute:
         self.convolved = convolved
 
         if (p==True):
-            plt.title("Convolved signal and the Emergency signal")
+            plt.title("Emergency signal convolved with Gaussian window")
             plt.plot(self.signal_1[:1000], color='blue')
             plt.plot(convolved.real[:1000], color='red')
+            plt.legend(('emergency signal','signal convolved with Gaussian window'), loc='lower left')
             plt.show()
 
-    def fft_convolve(self, signal_1, signal_2, p=True):
-        self.signal_1 = signal_1
-        self.signal_2 = signal_2
+    # https://en.wikipedia.org/wiki/Convolution_theorem
+    def fft_convolve(self, signal_1=None, signal_2=None, p=True):
+        if(signal_1 == None and signal_2 == None):
+            self.noise_name = 'brown'
+            samplerate1, x1 = wavfile.read('eSound.wav')
+            samplerate1, x2 = wavfile.read('bNoise.wav')
+            self.signal_1 = x1
+            self.signal_2 = x2
+        else:
+            if('b' == signal_2[0]):
+                self.noise_name = 'brown'
+            elif ('w' == signal_2[0]):
+                self.noise_name = 'white'
+            elif ('p' == signal_2[0]):
+                self.noise_name = 'pink'
+            samplerate1, x1 = wavfile.read(signal_1)
+            samplerate1, x2 = wavfile.read(signal_2)
+            self.signal_1 = x1
+            self.signal_2 = x2
 
-        # Convolution Theorem: DFT( f * g) = DFT( f ) * DFT(g) -> f * g = IDFT(DFT( f ) * DFT(g))
-        fft1 = np.fft.fft(self.signal_1)/100000
-        fft2 = np.fft.fft(self.signal_2)/100000
+        # Convolution Theorem: DFT( f x g) = DFT( f ) * DFT(g) -> f x g = IDFT(DFT( f ) * DFT(g))
+        fft1 = np.fft.rfft(self.signal_1)
+        fft2 = np.fft.rfft(self.signal_2)
         sz = min(len(fft1.real), len(fft2.real))
 
-        fft_from_convolution_theorem = np.array(np.fft.ifft(fft1[:sz]*fft2[:sz]))
+        fg_convolved = np.array(np.fft.irfft(fft1[:sz]*fft2[:sz]))
 
         if(p==True):
-            plt.plot(fft_from_convolution_theorem.real[:1000]/60000, color='black')
-            # plt.plot(np.array(self.signal_1[:1000])/60000, color='silver')
+            plt.title("Convolution Theorem: f x g = IDFT(DFT( f ) * DFT(g))")
+            plt.plot(np.array(self.signal_2[:5000])/60000000, color='red')
+            plt.plot((fg_convolved.real[:5000]/(6*(10**14)))/4, color='black')
+            plt.plot(np.array(self.signal_1[:5000])/60000, color='silver')
+            noise = self.noise_name + ' noise'
+            plt.legend((noise, "convolved signals", "emergency signal"), loc='lower left')
             plt.show()
 
         c = Correlate()
-        corr_value = c.normalized_correlation(fft_from_convolution_theorem[:sz].real, self.signal_1[:sz])
+        corr_value = c.normalized_correlation(fg_convolved[:sz].real, self.signal_1[:sz])
         if (corr_value > 0.5):
-            print("info: emergency sound was detected in the brownian motion FFT convolve, using normalized cross-correlation, {0}".format(corr_value))
+            print("info: emergency sound was detected in the convolved signals, using normalized cross-correlation, {0}".format(corr_value))
+        else:
+            print("info: emergency sound was not detected in the convolved signals, using normalized cross-correlation, {0}".format(corr_value))
