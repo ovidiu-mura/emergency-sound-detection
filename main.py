@@ -64,7 +64,7 @@ def main():
                                                                                      '\nUse any [<plot>, <plot_white>, <plot_brown>, <plot_pink> ] to mix the emergency sound with the corresponding noise and plot')
     parser.add_argument('--is_emergency_signal_in_mix', '-is_emergency_signal_in_mix', dest='noise_type', help='Use [<brown>, <white>, <pink>] to search the emergency signal in the mixed signal with the corresponding noise')
     args = parser.parse_args()
-    parser.print_usage()
+    #parser.print_usage()
     if (len(sys.argv)==1):
         parser.print_usage()
         exit(1)
@@ -114,25 +114,33 @@ def main():
         elif (args.avg_mix_plot == 'plot_pink'):
             mix.avg_mix('eSound.wav', 'pNoise.wav', output_mix_3)
             mix.plot_avg_mix()
-    elif (args.noise_type in ('white', 'pink', 'brown')):
-        if(mix.is_in_mix('eSound.wav', 'bNoise.wav', output_mix_1) == True):
-            print("info: Emergency Sound found in the mix signal!")
-            #mix.plot_mix_and_original_signal()
+    elif (args.noise_type in ('white', 'pink', 'brown', 'plot_white', 'plot_pink', 'plot_brown')):
+        if(args.noise_type == 'brown'):
+            if(mix.is_in_mix('eSound.wav', 'bNoise.wav', output_mix_1) == True):
+                print("info: Emergency Sound found in the mix signal!")
+            # mix.plot_mix_and_original_signal()
+        elif(args.noise_type == 'white'):
+            if(mix.is_in_mix('eSound.wav', 'wNoise.wav', output_mix_2) == True):
+                print("info: Emergency Sound found in the mix signal!")
+                # mix.plot_mix_and_original_signal()
+        elif(args.noise_type == 'pink'):
+            if(mix.is_in_mix('eSound.wav', 'pNoise.wav', output_mix_3) == True):
+                print("info: Emergency Sound found in the mix signal!")
+                # mix.plot_mix_and_original_signal()
+        elif (args.noise_type == 'plot_brown'):
+            if(mix.is_in_mix('eSound.wav', 'bNoise.wav', output_mix_1) == True):
+                print("info: Emergency Sound found in the mix signal!")
+                mix.plot_avg_mix()
+        elif (args.noise_type == 'plot_white'):
+            if(mix.is_in_mix('eSound.wav', 'wNoise.wav', output_mix_2) == True):
+                print("info: Emergency Sound found in the mix signal!")
+                mix.plot_avg_mix()
+        elif (args.noise_type == 'plot_pink'):
+            if(mix.is_in_mix('eSound.wav', 'pNoise.wav', output_mix_3) == True):
+                print("info: Emergency Sound found in the mix signal!")
+                mix.plot_avg_mix()
+
     exit(2)
-
-    #mix.avg_mix_sounds('eSound.wav', 'wNoise.wav', output_mix_2)
-
-    if(mix.is_in_mix('eSound.wav', 'wNoise.wav') == True):
-        print("info: Emergency Sound found in the mix signal!")
-        mix.plot_mix_and_original_signal()
-
-
-    #mix.avg_mix_sounds('eSound.wav', 'pNoise.wav', output_mix_3)
-
-    if(mix.is_in_mix('eSound.wav', 'pNoise.wav') == True):
-        print("info: Emergency Sound found in the mix signal!")
-        mix.plot_mix_and_original_signal()
-
     conv = Convolute()
     conv.convolve_gaussian_window(mix.samples_1, mix.samples_2)
     conv.fft_convolve(mix.samples_1, mix.samples_2)

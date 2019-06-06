@@ -64,6 +64,12 @@ class Mix:
 
     def avg_mix_sounds(self, file1, file2, output_file):
         self.output_file = output_file
+        if('b' == file2[0]):
+            self.noise_name = 'brown'
+        elif ('w' == file2[0]):
+            self.noise_name = 'white'
+        elif ('p' == file2[0]):
+            self.noise_name = 'pink'
         w1 = wave.open(file1)
         w2 = wave.open(file2)
 
@@ -104,17 +110,17 @@ class Mix:
         self.s_2 = x2
         self.orig_emergency = x1
         m = [(s1+s2)/2 for (s1, s2) in zip(np.array(x1), np.array(x2))]
-        m = np.array(m)/1000
+        #m = np.array(m)/1000
         self.mix_signal = m
         mm = self.to_int16(m)
         write(output_file, 48000, mm)
-        return mm
+        return m
 
     def plot_avg_mix(self):
         plt.title("Average Mix Emergency and Noise Signals")
-        plt.plot(np.absolute(self.s_2[:10000]/1000), color='green')
-        plt.plot(np.absolute(self.mix_signal[:10000]), color="blue")
-        plt.plot(np.array(self.s_1[:10000]), color='red')
+        plt.plot(np.absolute(np.array(self.s_2[:1000])/1000), color='green')
+        plt.plot(np.absolute(self.mix_signal[:1000]), color="blue")
+        plt.plot(np.array(self.s_1[:1000])/10000, color='red')
         noise = self.noise_name + ' noise'
         plt.legend((noise, "mixed signals", "emergency"), loc='upper right')
         plt.show()
@@ -153,7 +159,6 @@ class Mix:
         size = min(len(x1), len(x2))
         self.normalized_cross_correlation = norm_corr.normalized_correlation(x1[:size], x2[:size])
         print("norm cross_corr: " + str(self.normalized_cross_correlation))
-
 
         cor = norm_corr.discrete_linear_convolution(self.mix_signal[0:1696], self.orig_emergency[0:1696])/10000
         cor2 = norm_corr.discrete_linear_convolution(self.orig_emergency[0:1696], self.orig_emergency[0:1696])/10000
