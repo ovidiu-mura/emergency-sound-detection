@@ -47,19 +47,18 @@ class READ_WAV_FFT:
                 #print(self.freqs[idx])
         plt.show()
 
-
     def plot(self):
         plt.xlim( [10, self.samplerate/2] )
         plt.title('FFT - file: ' + str(self.file_name))
         plt.xscale( 'log' )
         plt.grid( True )
+        plt.ylabel( 'Amplitudes' )
         plt.xlabel( 'Frequency (Hz)' )
         if('mix' in self.file_name):
-            plt.plot(self.freqs[0:int(self.freqs.size/2)-10000],self.fftabs[0:int(self.freqs.size/2)-10000])
+            plt.plot(self.freqs[0:int(self.freqs.size/2)-10000],self.fftabs[0:int(self.freqs.size/2)-10000], color="blue")
         else:
-            plt.plot(self.freqs[:int(self.freqs.size/2)],self.fftabs[:int(self.freqs.size/2)])
+            #plt.plot(self.freqs[:int(self.freqs.size/2)],self.fftabs[:int(self.freqs.size/2)], color="blue")
+            plt.plot(self.freqs[:10000],self.fftabs[:10000], color="blue")
+        serie = self.file_name + " Signal"
+        plt.legend((serie, serie), loc="upper right")
         plt.show()
-
-# r = READ_WAV_FFT()
-# r.read_wav_fft()
-# r.plot()

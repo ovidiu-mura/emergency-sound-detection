@@ -64,6 +64,7 @@ def main():
                                                                                      '\nUse any [<plot>, <plot_white>, <plot_brown>, <plot_pink> ] to mix the emergency sound with the corresponding noise and plot')
     parser.add_argument('--is_emergency_signal_in_mix', '-is_emergency_signal_in_mix', dest='noise_type', default='none', help='Use [<brown>, <white>, <pink>] to search the emergency signal in the mixed signal with the corresponding noise')
     parser.add_argument('--convolve', '-convolve', dest='convolve', default='none', help='Use [<esound>] to convolve emergency sound with the Gaussian window, and Convolution Theorem')
+    parser.add_argument('--freq_domain', '-freq_domain', dest='freq_domain', default='none', help='Use [<esound>, <brown>, <white>, <pink>] to project the signals in the frequency domain\n')
     args = parser.parse_args()
     #parser.print_usage()
     if (len(sys.argv)==1):
@@ -151,21 +152,20 @@ def main():
             conv.fft_convolve('eSound.wav', 'wNoise.wav')
         elif(args.convolve == 'pink'):
             conv.fft_convolve('eSound.wav', 'pNoise.wav')
-
-    exit(2)
-
-    rwf = READ_WAV_FFT()
-    rwf.read_wav_fft('eSound.wav')
-    rwf.plot()
-
-    rwf.read_wav_fft(output_mix_1)
-    rwf.plot()
-
-    rwf.read_wav_fft(output_mix_2)
-    rwf.plot()
-
-    rwf.read_wav_fft(output_mix_3)
-    rwf.plot()
+    elif (args.freq_domain in ('esound', 'brown', 'white', 'pink')):
+        rwf = READ_WAV_FFT()
+        if(args.freq_domain == 'esound'):
+            rwf.read_wav_fft('eSound.wav')
+            rwf.plot()
+        elif(args.freq_domain == 'brown'):
+            rwf.read_wav_fft(output_mix_1)
+            rwf.plot()
+        elif(args.freq_domain == 'white'):
+            rwf.read_wav_fft(output_mix_2)
+            rwf.plot()
+        elif(args.freq_domain == 'pink'):
+            rwf.read_wav_fft(output_mix_3)
+            rwf.plot()
 
 if __name__ == "__main__":
     main()
