@@ -11,6 +11,8 @@ import matplotlib.pyplot as plt
 import wave
 from read_wav_fft import READ_WAV_FFT
 from mix_sounds import *
+from sine import *
+from filters import *
 
 # from scikits import wavread
 from noise import *
@@ -67,6 +69,7 @@ def main():
     parser.add_argument('--is_emergency_signal_in_mix', '-is_emergency_signal_in_mix', dest='noise_type', default='none', help='Use [<brown>, <white>, <pink>] to search the emergency signal in the mixed signal with the corresponding noise')
     parser.add_argument('--convolve', '-convolve', dest='convolve', default='none', help='Use [<esound>] to convolve emergency sound with the Gaussian window, and Convolution Theorem')
     parser.add_argument('--freq_domain', '-freq_domain', dest='freq_domain', default='none', help='Use [<esound>, <brown>, <white>, <pink>] to project the signals in the frequency domain\n')
+    parser.add_argument('--filter', '-filter', dest='filter', default='none', help='Use [<filters>] to run the low, high, band, and goertzel filters on a sine wave')
     args = parser.parse_args()
     #parser.print_usage()
     if (len(sys.argv)==1):
@@ -99,6 +102,10 @@ def main():
         p = pNoise()
         p.create_pink_noise()
         p.plot()
+
+        s = Sine()
+        s.create_wave()
+        s.plot()
         print('info: wav files (eSound.wav, bNoise.wav, pNoise.wav, wNoise.wav), successfully created')
 
     # mix and plot the emergency signal with the noise signal
@@ -168,6 +175,12 @@ def main():
         elif(args.freq_domain == 'pink'):
             rwf.read_wav_fft(output_mix_3)
             rwf.plot()
+    elif(args.filter is not 'none' and args.filter in ('filters')):
+        get_sine_freq()
+        f = Filter()
+        f.lowpass()
+        f.highpass()
+        f.bandpass()
 
 if __name__ == "__main__":
     main()

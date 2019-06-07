@@ -1,6 +1,8 @@
 # generate wav file containing sine waves
 # FB36 - 20120617
 import math, wave, array
+import matplotlib.pyplot as plt
+from scipy.io import wavfile
 
 class Sine:
     def __init__(self):
@@ -26,8 +28,13 @@ class Sine:
         f.writeframes(self.data.tostring())
         f.close()
 
-s = Sine()
+    def plot(self):
+        samplerate1, x = wavfile.read('SineWave_440Hz.wav')
+        plt.figure(1)
+        plt.title('Sine Wave...')
 
-s.create_wave()
-
+        plt.plot(x[:1000], linewidth=2, color='r')
+        plt.xlabel("no of samples")
+        plt.ylabel("amplitudes")
+        plt.show()
 

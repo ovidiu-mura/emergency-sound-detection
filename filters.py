@@ -51,9 +51,12 @@ class Filter:
         yy = ifft(y)
         xx = fftfreq(len(xn), 1/samplerate)
 
+        plt.title("Sine Wave - Low pass filter")
         plt.plot(xx[:10000].real, x0[:10000].real, 'red')
         plt.plot(xx[:10000].real, yy[:10000].real, 'green')
-        # plt.legend(('noisy signal', 'lfilter, once', 'lfilter, twice','filtfilt'), loc='best')
+        plt.legend(('sine wave', 'low pass filtered sine wave'), loc='best')
+        plt.xlabel("no of samples")
+        plt.ylabel("amplitudes")
         plt.grid(True)
         plt.show()
 
@@ -72,9 +75,12 @@ class Filter:
 
         f2 = ifft(z)
         xx = fftfreq(len(f2), 1/samplerate)
-
+        plt.title("Sine Wave - High pass filter")
         plt.plot(xx[:10000].real, xn[:10000].real, 'r')
         plt.plot(xx[:10000].real, f2[:10000].real, 'green')
+        plt.legend(('sine wave', 'high pass filtered sine wave'), loc='best')
+        plt.xlabel("no of samples")
+        plt.ylabel("amplitudes")
         plt.grid(True)
         plt.show()
 
@@ -95,9 +101,12 @@ class Filter:
 
         y = ifft(filtered_data)
         xx = fftfreq(len(xn), 1/samplerate)
-
+        plt.title("Sine Wave - Band pass filter")
         plt.plot(xx[:30000].real, xn[:30000].real, 'green')
         plt.plot(xx[:30000].real, y[:30000].real, 'r')
+        plt.legend(('sine wave', 'band pass filtered sine wave'), loc='best')
+        plt.xlabel("no of samples")
+        plt.ylabel("amplitudes")
         plt.grid(True)
         plt.show()
 
@@ -136,6 +145,3 @@ def get_sine_freq(file_name='SineWave_440Hz.wav', p=True):
         plt.show()
     return freq
 
-#get_sine_freq()
-f = Filter()
-f.bandpass()
