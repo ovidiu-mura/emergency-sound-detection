@@ -33,7 +33,19 @@ S(f) = 1/f^a, where 0 < a < 2, S is power spectral density, and f is the freqenc
     - multiply the samples of each signal
     - add the samples of each signal
 
+- Calculate the correlation factor of two signals to identify if the signals has any relation with each other using the formula below
+    - normalized correlation: norm_corr(x, y) = sum(x[n]*y[n])/sqrt(sum(x^2)*sum(y^2)), where 0 <= n <= n-1
+    - standard correlation: corr(x,y) = Sum (x[n]*y[n]), where 0 <= n <= n-1
+- The correlation results are printed on the screen and the mixed signals can also be projected using the command line i.e. '-is_emergency_signal_in_mix plot_brown'
 
+- The signals can be convoluted using the Convolution Theorem, for example: emergency signal with the noise signal
+    - Running the correlation of the convoluted signals show that the convolution destroy any relation between the two signals producing a negative result
+
+- Only the emergency signal is convoluted with the Gaussian window creating very close, smoothed copy of the original signal
+
+- DFT is calculated for Emergency signal, brown noise signal, white noise signal, pink noise signal and ploted in frequency domain
+
+- I implemented goertzel, low pass, high pass, and band pass filters to filter the signals for a given parameter and plot the filtered signals
 
 
 ## Command Line Usage
