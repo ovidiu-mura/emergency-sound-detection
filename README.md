@@ -26,6 +26,13 @@ random.uniform(-amplitudes, +amplitudes, time)
 
 S(f) = 1/f^a, where 0 < a < 2, S is power spectral density, and f is the freqency.
 
+- All the generated signals are ploted in a chart with coordonates amplitudes per no of samples
+
+- The signals can be mixed by the following operations
+    - averaging the samples of each signal
+    - multiply the samples of each signal
+    - add the samples of each signal
+
 
 
 
