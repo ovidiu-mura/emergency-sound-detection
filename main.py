@@ -42,6 +42,8 @@ class eSound:
         plt.figure(1)
         plt.title('Emergency Sound Wave...')
         plt.plot(signal[0:1600])
+        plt.xlabel("no of samples")
+        plt.ylabel("amplitudes")
         plt.show()
 
     def create_emergency_sound(self):
@@ -84,19 +86,19 @@ def main():
 
         c = eSound()
         c.create_emergency_sound()
-        #c.plot_wave()
+        c.plot_wave()
 
         b = bNoise()
         b.brownian_motion()
-        #b.plot()
+        b.plot()
 
         w = wNoise()
         w.create_white_noise()
-        #w.plot()
+        w.plot()
 
         p = pNoise()
         p.create_pink_noise()
-        #p.plot()
+        p.plot()
         print('info: wav files (eSound.wav, bNoise.wav, pNoise.wav, wNoise.wav), successfully created')
 
     # mix and plot the emergency signal with the noise signal

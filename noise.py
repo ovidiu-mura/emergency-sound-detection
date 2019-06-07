@@ -55,6 +55,8 @@ class bNoise:
         plt.figure(1)
         plt.title('Brownian Motion Wave...')
         plt.plot(signal[0:1600])
+        plt.xlabel("no of samples")
+        plt.ylabel("amplitudes")
         plt.show()
 
 class wNoise:
@@ -80,6 +82,8 @@ class wNoise:
         plt.figure(1)
         plt.title('White Noise Wave...')
         plt.plot(self.noise[0:250])
+        plt.xlabel("no of samples")
+        plt.ylabel("amplitudes")
         plt.show()
 
 # Reference: https://en.wikipedia.org/wiki/Pink_noise
@@ -125,6 +129,8 @@ class pNoise:
         plt.title('Pink Noise Wave...')
 
         plt.plot(self.fs.real[10750:], self.hs.real[10750:], linewidth=2, color='r')
+        plt.xlabel("no of samples")
+        plt.ylabel("amplitudes")
         plt.show()
 
     def to_int32(self, signal):
