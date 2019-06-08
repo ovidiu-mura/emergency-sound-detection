@@ -70,7 +70,7 @@ or run the following command line with the -h and --h arguments to print more in
 
 Example of command line commands for main project functionality is shown below:
 
->python main.py -create all
+>python main.py --create all
 
 >python main.py --avg_mix_plot brown
 
