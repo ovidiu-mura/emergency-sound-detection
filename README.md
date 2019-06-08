@@ -68,7 +68,23 @@ or run the following command line with the -h and --h arguments to print more in
 
 >python main.py -h
 
->python main.py --h
+>python main.py -create all
+
+>python main.py --avg_mix_plot brown
+
+>python main.py --avg_mix_plot plot_brown
+
+>python main.py --is_emergency_signal_in_mix brown
+
+>python main.py --convolve esound
+
+>python main.py --freq_domain esound
+
+>python main.py --filter filters
+
+
+
+
 
 
 
