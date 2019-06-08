@@ -6,6 +6,10 @@ import numpy as np
 from scipy.io import wavfile
 from scipy.fftpack import fft,fftfreq, ifft
 
+
+# It provides the implementation of the READ_WAV_FFT class which reads the frequencies using FFT (Fast Fourier Transform)
+# algorithm from a signal which can be read from file or passed as argument. The frequencies can be visualized using the
+# plot_fft and plot methods.
 class READ_WAV_FFT:
     def __init__(self):
         self.samplerate = None
@@ -14,6 +18,7 @@ class READ_WAV_FFT:
         self.freqs = None
         self.file_name = None
 
+    # It finds the frequencies from a given signal stored in a file.
     def read_wav_fft(self, file_name='SineWave_440Hz.wav'):
         self.file_name = file_name
         self.samplerate, self.data = wavfile.read(file_name)
@@ -26,6 +31,7 @@ class READ_WAV_FFT:
         self.fftabs = abs(datafft)
         self.freqs = fftfreq(samples,1/self.samplerate)
 
+    # It finds the frequenceis of a given signal
     def read_fft(self, signal, samplerate):
         self.data = signal
         self.samplerate = samplerate
@@ -38,6 +44,7 @@ class READ_WAV_FFT:
         self.fftabs = abs(datafft)
         self.freqs = fftfreq(samples,1/self.samplerate)
 
+    # It plots the frequencies for visualization.
     def plot_fft(self):
         plt.xlim( [10, self.samplerate/2] )
         plt.title('FFT - file: ' + str(self.file_name))
@@ -51,6 +58,7 @@ class READ_WAV_FFT:
                 #print(self.freqs[idx])
         plt.show()
 
+    # It plots the found frequencies
     def plot(self):
         plt.xlim( [10, self.samplerate/2] )
         plt.title('FFT - file: ' + str(self.file_name))

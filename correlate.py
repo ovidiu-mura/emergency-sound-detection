@@ -8,6 +8,8 @@ import math
 from scipy.signal import fftconvolve
 import numpy as np
 
+# It implements the normalized, and standard correlation and an extra
+# method to calculate the Discrete Linear Convolution
 class Correlate:
 
     def __init__(self):

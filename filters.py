@@ -26,6 +26,7 @@ from scipy.io import wavfile
 from scipy import signal
 from scipy.fftpack import fft,fftfreq, ifft, rfft, rfftfreq, irfft
 
+# It implements the Goertzel, the Low pass, High pass, and Band pass filters.
 class Filter:
 
     def __init__(self):
@@ -110,6 +111,7 @@ class Filter:
         plt.grid(True)
         plt.show()
 
+    # https://en.wikipedia.org/wiki/Goertzel_algorithm , Equation (6)
     def goertzel(self, x, f):
         """x is an array of samples, f is the target frequency.
         Returns the output magnitude."""
@@ -122,6 +124,7 @@ class Filter:
         self.goertzel_freqs[f] = y
         return y
 
+# It reads the sign frequency from a given file using Goertzel filter.
 def get_sine_freq(file_name='SineWave_440Hz.wav', p=True):
     f = Filter()
 

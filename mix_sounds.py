@@ -1,6 +1,8 @@
 # Author: Ovidiu Mura
 # Date: May 22, 2019
 
+# This file contains the implementation of Mix and Convolute classes.
+
 import wave
 import numpy as np
 from numpy import int16
@@ -12,8 +14,11 @@ import scipy.signal
 
 from scipy.io import wavfile
 
-class Mix:
 
+# Mix class implements methods to mix signals by averaging, multiply and adding each samples from one signal to the
+# samples of the other signal.
+class Mix:
+    # The constructor of the Mix class initializes the fields.
     def __init__(self):
         self.file1 = None
         self.file2 = None
@@ -25,6 +30,10 @@ class Mix:
         self.s_2 = None
         self.output_file = None
 
+    # It reads the wav samples from the two files provided as arguments and store in the them in the
+    # instance variables of the class.
+    # f1 - the name of the first file the samples to be read from
+    # f2 - the name of the second file the samples to be read from
     def get_samples_from_files(self, f1, f2):
         w1 = wave.open(f1)
         w2 = wave.open(f2)
@@ -40,6 +49,9 @@ class Mix:
         self.s_1 = [self.str_to_int(s) for s in s1] #['\x04\x08'] -> [0x0804]
         self.s_2 = [self.str_to_int(s) for s in s2]
 
+    # It reads the samples of wav from one file
+    # f1 - the file name the wav samples to be read from
+    # returns an array of the samples from the fiels in the int format
     def get_samples_from_file(self, f1):
         w1 = wave.open(f1)
 
@@ -53,6 +65,7 @@ class Mix:
         return self.s_1
 
     # convert samples from strings to ints
+    # str - a string of bytes
     def str_to_int(self, str):
         i = 0
         for c in str[::-1]: # iterate over each char in reverse (because little-endian)
@@ -62,6 +75,11 @@ class Mix:
             i += c
         return i
 
+    # It mixes two singals read from two files and store them in a file with the name given as argument
+    # file1 - reads the signal from first file
+    # file2 - reads the signal from second file
+    # output_file - stores the average mixed signal in the file with name output_file
+    # returns the avg mixed signal
     def avg_mix_sounds(self, file1, file2, output_file):
         self.output_file = output_file
         if('b' == file2[0]):
@@ -96,6 +114,11 @@ class Mix:
         write(output_file, 48000, self.to_int16(samples_avg))
         return samples_avg
 
+    # It mixes two singals read from two files and store them in a file with the name given as argument using wavfile libs.
+    # file1 - reads the signal from first file
+    # file2 - reads the signal from second file
+    # output_file - stores the average mixed signal in the file with name output_file
+    # returns the avg mixed signal
     def avg_mix(self, f1, f2, output_file):
         self.output_file = output_file
         if('b' == f2[0]):
@@ -110,12 +133,13 @@ class Mix:
         self.s_2 = x2
         self.orig_emergency = x1
         m = [(s1+s2)/2 for (s1, s2) in zip(np.array(x1), np.array(x2))]
-        #m = np.array(m)/1000
         self.mix_signal = m
         mm = self.to_int16(m)
         write(output_file, 48000, mm)
         return m
 
+    # It plots the emergency signal, the noise and the mixed signal.
+    # The user to continue needs to close the pop-up window - the opened chart.
     def plot_avg_mix(self):
         plt.title("Average Mix: Emergency and Noise Signals")
         plt.plot(np.absolute(np.array(self.s_2[:1000])/1000), color='green')
@@ -127,6 +151,7 @@ class Mix:
         plt.ylabel("amplitudes")
         plt.show()
 
+    # It multiply two signals read from two files and plot the resulted signals.
     def mult_mix_sounds(self, file1, file2):
         self.get_samples_from_files(file1, file2)
         sz = min(len(self.s_1),len(self.s_2))
@@ -134,6 +159,7 @@ class Mix:
         plt.plot(multiply_signals[:1000], color='red')
         plt.show()
 
+    # It mixes two singnals by addition stored in the files given in the arguments and plots the results.
     def add_mix_sounds(self, file1, file2):
         self.get_samples_from_files(file1, file2)
         sz = min(len(self.s_1),len(self.s_2))
@@ -142,11 +168,20 @@ class Mix:
         # plt.plot(self.samples_1[:1000], color='gray')
         plt.show()
 
+    # It converts a sample to an int of 2 bytes then multiply the result with 2^10.
+    # It increases the volume of the signal.
     def to_int16(self, signal):
         # Take samples in [-1, 1] and scale to 16-bit integers,
         # values between -2^15 and 2^15 - 1.
         return int16(signal*2**10)
 
+    # It calculates the average mix of signals from the two files passed as argument and runs the normalized correlation
+    # to indentify the relation between two signals. Then, it calculates the Discreate Linear Convolution for mixed signal
+    # and for the emergency original signal to identify the realtion visually between signals.
+    # s1 - array of samples of first signal
+    # s2 - array of samples of second signal
+    # ofile - the file the mixed signal to be stored
+    # returns True if there is a correlation relation greater than 0.5 between emergency and mixed signal, otherwise False.
     def is_in_mix(self, s1, s2, ofile):
         ys = self.avg_mix_sounds(s1, s2, ofile)
         ys = np.absolute(ys)
@@ -169,11 +204,13 @@ class Mix:
         plt.legend(("mixed and emergency signals", "emergency signal"), loc="lower center")
         plt.show()
 
-        #print("std corr: " + str(norm_corr.standard_correlate(x1,x2)))
+        # print("std corr: " + str(norm_corr.standard_correlate(x1,x2)))
         if(self.normalized_cross_correlation > 0.5):
             return True
         return False
 
+    # It plots the average mixed, the emergency and the noise signals.
+    # The user needs to close the pop-up chart to be able to continue the execution of the program.
     def plot_mix_and_original_signal(self):
         plt.title("Mix Emergency signal with Noise signal")
         plt.plot(self.orig_emergency[:1000], color='red')
@@ -182,7 +219,8 @@ class Mix:
         plt.legend(("emergency signal", "noise", "mixed signals"), loc='upper right')
         plt.show()
 
-
+# The Convolute class implements the convolution of the emergency signal with the Gaussian window and the fft
+# convolution between two given signals using the Convolution Theorem.
 class Convolute:
     def __init__(self):
         self.signal_1 = None
@@ -191,6 +229,8 @@ class Convolute:
         self.gaussian_window = None
         self.noise_name = None
 
+    # It implements the convolution of emergency signal with Gaussian window.
+    # p - True, it plots the signals; False, it doesn't plot the signals.
     def convolve_gaussian_window(self, p=True):
         samplerate1, x1 = wavfile.read('eSound.wav')
         self.signal_1 = x1
@@ -235,6 +275,7 @@ class Convolute:
 
         fg_convolved = np.array(np.fft.irfft(fft1[:sz]*fft2[:sz]))
 
+        # It plots the convoluted signals, the noise and the emergency signals
         if(p==True):
             plt.title("Convolution Theorem: f x g = IDFT(DFT( f ) * DFT(g))")
             plt.plot(np.array(self.signal_2[:5000])/60000000, color='red')
@@ -244,6 +285,7 @@ class Convolute:
             plt.legend((noise, "convolved signals", "emergency signal"), loc='lower left')
             plt.show()
 
+        # It calculates the correlation factor between the two signals.
         c = Correlate()
         corr_value = c.normalized_correlation(fg_convolved[:sz].real, self.signal_1[:sz])
         if (corr_value > 0.5):

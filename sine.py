@@ -4,8 +4,11 @@ import math, wave, array
 import matplotlib.pyplot as plt
 from scipy.io import wavfile
 
+# It implements Sine class which generates a Sine wave and store it to a given file.
+# The generated wave can be ploted in a chart for visualization.
 class Sine:
 
+    # The constructor, initializes the arguments of the sine wave
     def __init__(self):
         self.duration = 3 # seconds
         self.freq = 440 # of cycles per second (Hz) (frequency of the sine waves)
@@ -17,6 +20,7 @@ class Sine:
         self.numSamplesPerCyc = int(self.sampleRate / self.freq)
         self.numSamples = self.sampleRate * self.duration
 
+    # Creates the Sine wave and store it in a file.
     def create_wave(self):
         for i in range(self.numSamples):
             v = 32767 * float(self.volume) / 100
@@ -29,6 +33,7 @@ class Sine:
         f.writeframes(self.data.tostring())
         f.close()
 
+    # Plot the sine wave
     def plot(self):
         samplerate1, x = wavfile.read('SineWave_440Hz.wav')
         plt.figure(1)
