@@ -47,6 +47,7 @@ S(f) = 1/f^a, where 0 < a < 2, S is power spectral density, and f is the freqenc
 
 - I implemented goertzel, low pass, high pass, and band pass filters to filter the signals for a given parameter and plot the filtered signals
 
+
 ## Future Work
 There are enhacements that can be done in future work.
 - mix the emergency sound with other types of noise such as natural noise (taffic, rain, etc.)
