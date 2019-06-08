@@ -61,7 +61,7 @@ def main():
 
     parser = argparse.ArgumentParser(description="Emergency Sound Detection")
     # parser.add_argument('--h', help='Emergency Sound Detection Command Line help')
-    parser.add_argument('--create', '-create', dest='wav', default='none', help='create wave files: emergency sound, white noise, pink noise, and brown noise')
+    parser.add_argument('--create', '-create', dest='wav', default='none', help='Use [<all>] to create wave files: emergency sound, white noise, pink noise, and brown noise')
     parser.add_argument('--avg_mix_plot', '-avg_mix_plot', dest='avg_mix_plot', default='none', help='Use any [<brown>, <white>, <pink>] mix emergency signal with the brown, white, or pink noise'
                                                                                      '\nUse any [<plot>, <plot_white>, <plot_brown>, <plot_pink> ] to mix the emergency sound with the corresponding noise and plot')
     parser.add_argument('--is_emergency_signal_in_mix', '-is_emergency_signal_in_mix', dest='noise_type', default='none', help='Use [<brown>, <white>, <pink>] to search the emergency signal in the mixed signal with the corresponding noise')
@@ -69,7 +69,7 @@ def main():
     parser.add_argument('--freq_domain', '-freq_domain', dest='freq_domain', default='none', help='Use [<esound>, <brown>, <white>, <pink>] to project the signals in the frequency domain\n')
     parser.add_argument('--filter', '-filter', dest='filter', default='none', help='Use [<filters>] to run the low, high, band, and goertzel filters on a sine wave')
     args = parser.parse_args()
-    #parser.print_usage()
+
     if (len(sys.argv)==1):
         parser.print_usage()
         exit(1)

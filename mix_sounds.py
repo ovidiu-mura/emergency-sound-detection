@@ -117,14 +117,15 @@ class Mix:
         return m
 
     def plot_avg_mix(self):
-        plt.title("Average Mix Emergency and Noise Signals")
+        plt.title("Average Mix: Emergency and Noise Signals")
         plt.plot(np.absolute(np.array(self.s_2[:1000])/1000), color='green')
-        plt.plot(np.absolute(self.mix_signal[:1000]), color="blue")
+        plt.plot(np.absolute(self.mix_signal[:1000])/10000, color="blue")
         plt.plot(np.array(self.s_1[:1000])/10000, color='red')
         noise = self.noise_name + ' noise'
         plt.legend((noise, "mixed signals", "emergency"), loc='upper right')
+        plt.xlabel("no of samples")
+        plt.ylabel("amplitudes")
         plt.show()
-
 
     def mult_mix_sounds(self, file1, file2):
         self.get_samples_from_files(file1, file2)
