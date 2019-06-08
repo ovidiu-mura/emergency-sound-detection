@@ -47,6 +47,13 @@ S(f) = 1/f^a, where 0 < a < 2, S is power spectral density, and f is the freqenc
 
 - I implemented goertzel, low pass, high pass, and band pass filters to filter the signals for a given parameter and plot the filtered signals
 
+## Future Work
+There are enhacements that can be done in future work.
+- mix the emergency sound with other types of noise such as natural noise (taffic, rain, etc.)
+- write the project in Rust programming language to get better performance for processing wav files with longer time samples
+- plot the singals for some diagrams in time x-coordonate, currently it is plotted in amps per number of samples for some of the diagrams
+- save the ploted diagrams in images, for a better user experience; currently the user must close the plot pop-up window to be able to continue
+
 
 ## Command Line Usage
 
