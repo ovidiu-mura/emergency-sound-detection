@@ -19,6 +19,8 @@ class READ_WAV_FFT:
         self.samplerate, self.data = wavfile.read(file_name)
         samples = self.data.shape[0]
         datafft = fft(self.data)
+        samples = self.data.shape[0]
+        datafft = fft(self.data)
 
         # Get the absolute value of real and complex component
         self.fftabs = abs(datafft)
@@ -27,6 +29,8 @@ class READ_WAV_FFT:
     def read_fft(self, signal, samplerate):
         self.data = signal
         self.samplerate = samplerate
+        datafft = fft(self.data)
+        samples = len(self.data)
         datafft = fft(self.data)
         samples = len(self.data)
 
@@ -58,7 +62,7 @@ class READ_WAV_FFT:
             plt.plot(self.freqs[0:int(self.freqs.size/2)-10000],self.fftabs[0:int(self.freqs.size/2)-10000], color="blue")
         else:
             #plt.plot(self.freqs[:int(self.freqs.size/2)],self.fftabs[:int(self.freqs.size/2)], color="blue")
-            plt.plot(self.freqs[:10000],self.fftabs[:10000], color="blue")
+            plt.plot(self.freqs,self.fftabs, color="blue")
         serie = self.file_name + " Signal"
         plt.legend((serie, serie), loc="upper right")
         plt.show()

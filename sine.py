@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 from scipy.io import wavfile
 
 class Sine:
+
     def __init__(self):
         self.duration = 3 # seconds
         self.freq = 440 # of cycles per second (Hz) (frequency of the sine waves)

@@ -2,7 +2,7 @@
 # date: April 30, 2019
 
 # Reference: https://www.johndcook.com/blog/2016/03/10/creating-police-siren-sounds-with-frequency-modulation/
-
+import sys
 from scipy.io.wavfile import write
 from numpy import arange, pi, sin, int32, int16
 import configparser
@@ -52,8 +52,6 @@ class eSound:
         x = arange(0,3*self.N,0.5,float) # three seconds of audio
         data = self.freq_modulation(x/self.N, 1000, 8, 100)
         write(self.file_name, self.N, self.to_int16(data))
-
-import sys
 
 def main():
 
@@ -167,13 +165,13 @@ def main():
             rwf.read_wav_fft('eSound.wav')
             rwf.plot()
         elif(args.freq_domain == 'brown'):
-            rwf.read_wav_fft(output_mix_1)
+            rwf.read_wav_fft('bNoise.wav')
             rwf.plot()
         elif(args.freq_domain == 'white'):
-            rwf.read_wav_fft(output_mix_2)
+            rwf.read_wav_fft('wNoise.wav')
             rwf.plot()
         elif(args.freq_domain == 'pink'):
-            rwf.read_wav_fft(output_mix_3)
+            rwf.read_wav_fft('pNoise.wav')
             rwf.plot()
     elif(args.filter is not 'none' and args.filter in ('filters')):
         get_sine_freq()
